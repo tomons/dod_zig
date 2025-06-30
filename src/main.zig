@@ -1,6 +1,9 @@
 // To run in relase fast mode: zig build run -Doptimize=ReleaseFast
 pub fn main() !void {
-    lib.structOfPointersPerfTest();
+    for (0..10) |_| {
+        lib.structOfIndexesPerfTest();
+        lib.structOfPointersPerfTest();
+    }
 }
 
 /// This imports the separate module containing `root.zig`. Take a look in `build.zig` for details.
