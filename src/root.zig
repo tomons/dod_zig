@@ -2,16 +2,20 @@ const std = @import("std");
 const time = std.time;
 const Instant = time.Instant;
 const Timer = time.Timer;
-const print = std.debug.print;
 
 // Use indexes instead of pointers:
 // struct { a: *A, b: *B, c: *C, d: *D } takes 32 bytes on 64-bit CPUs, 16 bytes on 32-bit CPUs
 // struct { a: u32, b: u32, c: u32, d: u32 } takes 16 bytes on 64-bit CPUs, 16 bytes on 32-bit CPUs
-
 // However, we need to watch out for type safety.
+
+const StructOfPointersTestResult  = extern struct{
+    sum: u64,
+    elapsed: f64,
+};
+
 const structElementsCount = 100000;
-const repeats = 100;
-pub export fn structOfPointersPerfTest() void {
+
+pub export fn structOfPointersPerfTest(repeats: u32) StructOfPointersTestResult {
     var a1: u32 = 1;
     var b1: u32 = 2;
     var c1: u32 = 3;
@@ -42,14 +46,14 @@ pub export fn structOfPointersPerfTest() void {
         }
     }
     const end = Instant.now() catch unreachable;
-    const elapsed1: f64 = @floatFromInt(end.since(start));
-    print("Sum is {} . structOfPointers time elapsed is: {d:.3}ms\n", .{
-        sum,
-        elapsed1 / time.ns_per_ms,
-    });
+    const elapsed: f64 = @floatFromInt(end.since(start));
+    return StructOfPointersTestResult{
+        .sum = sum,
+        .elapsed = elapsed,
+    };
 }
 
-pub export fn structOfIndexesPerfTest() void {
+pub export fn structOfIndexesPerfTest(repeats: u32) StructOfPointersTestResult {
     var arrayA: [structElementsCount]u32 = undefined;
     var arrayB: [structElementsCount]u32 = undefined;
     var arrayC: [structElementsCount]u32 = undefined;
@@ -83,9 +87,9 @@ pub export fn structOfIndexesPerfTest() void {
         }
     }
     const end = Instant.now() catch unreachable;
-    const elapsed1: f64 = @floatFromInt(end.since(start));
-    print("Sum is {} . structOfIndexes time elapsed is: {d:.3}ms\n", .{
-        sum,
-        elapsed1 / time.ns_per_ms,
-    });
+    const elapsed: f64 = @floatFromInt(end.since(start));
+    return StructOfPointersTestResult{
+        .sum = sum,
+        .elapsed = elapsed,
+    };
 }
