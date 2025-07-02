@@ -8,14 +8,10 @@ const Timer = time.Timer;
 // struct { a: u32, b: u32, c: u32, d: u32 } takes 16 bytes on 64-bit CPUs, 16 bytes on 32-bit CPUs
 // However, we need to watch out for type safety.
 
-const StructOfPointersTestResult  = extern struct{
-    sum: u64,
-    elapsed: f64,
-};
-
 const structElementsCount = 100000;
+const repeats: u32 = 100;
 
-pub export fn structOfPointersPerfTest(repeats: u32) StructOfPointersTestResult {
+pub export fn structOfPointersPerfTest() u64 {
     var a1: u32 = 1;
     var b1: u32 = 2;
     var c1: u32 = 3;
@@ -38,22 +34,18 @@ pub export fn structOfPointersPerfTest(repeats: u32) StructOfPointersTestResult 
     }
 
     var sum: u64 = 0;
-    const start = Instant.now() catch unreachable;
+
     for (0..repeats) |i| {
         sum = i;
         for (arrayOfStructs) |el| {
             sum += el.a.* + el.b.* + el.c.* + el.d.*;
         }
     }
-    const end = Instant.now() catch unreachable;
-    const elapsed: f64 = @floatFromInt(end.since(start));
-    return StructOfPointersTestResult{
-        .sum = sum,
-        .elapsed = elapsed,
-    };
+
+    return sum;
 }
 
-pub export fn structOfIndexesPerfTest(repeats: u32) StructOfPointersTestResult {
+pub export fn structOfIndexesPerfTest() u64 {
     var arrayA: [structElementsCount]u32 = undefined;
     var arrayB: [structElementsCount]u32 = undefined;
     var arrayC: [structElementsCount]u32 = undefined;
@@ -79,17 +71,12 @@ pub export fn structOfIndexesPerfTest(repeats: u32) StructOfPointersTestResult {
     }
 
     var sum: u64 = 0;
-    const start = Instant.now() catch unreachable;
     for (0..repeats) |i| {
         sum = i;
         for (arrayOfStructs) |el| {
             sum += arrayA[el.aIndex] + arrayB[el.bIndex] + arrayC[el.cIndex] + arrayD[el.dIndex];
         }
     }
-    const end = Instant.now() catch unreachable;
-    const elapsed: f64 = @floatFromInt(end.since(start));
-    return StructOfPointersTestResult{
-        .sum = sum,
-        .elapsed = elapsed,
-    };
+
+    return sum;
 }
