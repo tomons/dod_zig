@@ -18,6 +18,7 @@ pub fn build(b: *std.Build) void {
     const example_step = b.step("examples", "Build examples");
     const example_names = [_][]const u8{
         "indexes_vs_pointers",
+        "indexes_vs_pointers_dynamic",
     };
 
     for (example_names) |example_name| {
