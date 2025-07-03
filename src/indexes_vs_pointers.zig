@@ -56,10 +56,13 @@ fn initStructOfIndexes() void {
 }
 
 pub fn main() !void {
+    const stdout = std.io.getStdOut().writer();
+    try stdout.print("Size of StructOfIndexes: {} bytes\n", .{@sizeOf(StructOfIndexes)});
+    try stdout.print("Size of StructOfPointers: {} bytes\n", .{@sizeOf(StructOfPointers)});
+
     initStructOfIndexes();
     initStructOfPointers();
 
-    const stdout = std.io.getStdOut().writer();
     var bench = zbench.Benchmark.init(std.heap.page_allocator, .{});
     defer bench.deinit();
 
