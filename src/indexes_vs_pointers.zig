@@ -21,7 +21,6 @@ var c1: u32 = 3;
 var d1: u32 = 4;
 
 fn initStructOfPointers() void {
-    std.io.getStdOut().writer().writeAll("initStructOfPointers\n") catch unreachable;
     for (0..structElementsCount) |i| {
         arrayOfStructsOfPointers[i].a = &a1;
         arrayOfStructsOfPointers[i].b = &b1;
@@ -44,7 +43,6 @@ var arrayC: [structElementsCount]u32 = undefined;
 var arrayD: [structElementsCount]u32 = undefined;
 
 fn initStructOfIndexes() void {
-    std.io.getStdOut().writer().writeAll("initStructOfIndexes\n") catch unreachable;
     for (0..structElementsCount) |i| {
         arrayA[i] = 1;
         arrayB[i] = 2;
@@ -78,7 +76,7 @@ fn benchmarkStructOfPointers(_: std.mem.Allocator) void {
         sum += el.a.* + el.b.* + el.c.* + el.d.*;
     }
 
-    if (sum == 0) @panic("result is wrong"); // Use result to prevent optimization
+    if (sum != 1000000) @panic("result is wrong"); // Use result to prevent optimization
 }
 
 fn benchmarkStructOfIndexes(_: std.mem.Allocator) void {
@@ -87,5 +85,5 @@ fn benchmarkStructOfIndexes(_: std.mem.Allocator) void {
         sum += arrayA[el.aIndex] + arrayB[el.bIndex] + arrayC[el.cIndex] + arrayD[el.dIndex];
     }
 
-    if (sum == 0) @panic("result is wrong"); // Use result to prevent optimization
+    if (sum != 1000000) @panic("result is wrong"); // Use result to prevent optimization
 }
