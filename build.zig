@@ -34,6 +34,21 @@ pub fn build(b: *std.Build) void {
         example.root_module.addImport("zbench", zbench_module);
         example_step.dependOn(&example.step);
         example_step.dependOn(&install_example.step);
-    }
 
+        const run_cmd = b.addRunArtifact(example);
+        run_cmd.step.dependOn(b.getInstallStep());
+
+        // This allows the user to pass arguments to the application in the build
+        // command itself, like this: `zig build run -- arg1 arg2 etc`
+        if (b.args) |args| {
+            run_cmd.addArgs(args);
+        }
+        // This creates a build step. It will be visible in the `zig build --help` menu,
+        // and can be selected like this: `zig build run`
+        // This will evaluate the `run` step rather than the default, which is "install".
+        const run_step_name = b.fmt("run_{s}", .{example_name});
+        const run_step_description = b.fmt("Run the example {s}", .{example_name});
+        const run_step = b.step(run_step_name, run_step_description);
+        run_step.dependOn(&run_cmd.step);
+    }
 }
