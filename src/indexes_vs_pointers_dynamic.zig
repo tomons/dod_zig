@@ -65,7 +65,7 @@ fn initStructOfIndexes(allocator: std.mem.Allocator) !void {
     }
 }
 
-fn deinitStructOfIndexes(allocator: std.mem.Allocator) void{
+fn deinitStructOfIndexes(allocator: std.mem.Allocator) void {
     allocator.free(arrayOfStructsOfIndexes);
 }
 
@@ -81,7 +81,6 @@ pub fn main() !void {
 
     try initStructOfPointers(allocator);
     defer deinitStructOfPointers(allocator);
-
 
     var bench = zbench.Benchmark.init(std.heap.page_allocator, .{});
     defer bench.deinit();

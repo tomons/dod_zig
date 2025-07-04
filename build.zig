@@ -22,17 +22,13 @@ pub fn build(b: *std.Build) void {
     };
 
     for (example_names) |example_name| {
-
         const example_module = b.createModule(.{
             .root_source_file = b.path(b.fmt("src/{s}.zig", .{example_name})),
-                .target = target,
-                .optimize = optimize,
+            .target = target,
+            .optimize = optimize,
         });
 
-        const exampleExe = b.addExecutable(.{
-            .name = example_name,
-            .root_module = example_module
-        });
+        const exampleExe = b.addExecutable(.{ .name = example_name, .root_module = example_module });
         const install_example = b.addInstallArtifact(exampleExe, .{});
         b.installArtifact(exampleExe);
         const opts = .{ .target = target, .optimize = optimize };
