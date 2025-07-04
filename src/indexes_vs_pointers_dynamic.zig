@@ -3,8 +3,23 @@
 const std = @import("std");
 const zbench = @import("zbench");
 
-const structElementsCount = 100000;//add zero and result changes in favor of struct of pointers interestingly
+//common data
+const structElementsCount = 1000000;
+var arrayA: [structElementsCount]u32 = undefined;
+var arrayB: [structElementsCount]u32 = undefined;
+var arrayC: [structElementsCount]u32 = undefined;
+var arrayD: [structElementsCount]u32 = undefined;
 
+fn initCommonData() void {
+    for (0..structElementsCount) |i| {
+        arrayA[i] = 1;
+        arrayB[i] = 2;
+        arrayC[i] = 3;
+        arrayD[i] = 4;
+    }
+}
+
+// StructOfPointers data
 const StructOfPointers = struct {
     a: *u32,
     b: *u32,
@@ -12,18 +27,14 @@ const StructOfPointers = struct {
     d: *u32,
 };
 var arrayOfStructsOfPointers: []StructOfPointers = undefined;
-var a1: u32 = 1;
-var b1: u32 = 2;
-var c1: u32 = 3;
-var d1: u32 = 4;
 
 fn initStructOfPointers(allocator: std.mem.Allocator) !void {
     arrayOfStructsOfPointers = try allocator.alloc(StructOfPointers, structElementsCount);
     for (0..structElementsCount) |i| {
-        arrayOfStructsOfPointers[i].a = &a1;
-        arrayOfStructsOfPointers[i].b = &b1;
-        arrayOfStructsOfPointers[i].c = &c1;
-        arrayOfStructsOfPointers[i].d = &d1;
+        arrayOfStructsOfPointers[i].a = &(arrayA[i]);
+        arrayOfStructsOfPointers[i].b = &(arrayB[i]);
+        arrayOfStructsOfPointers[i].c = &(arrayC[i]);
+        arrayOfStructsOfPointers[i].d = &(arrayD[i]);
     }
 }
 
@@ -31,6 +42,7 @@ fn deinitStructOfPointers(allocator: std.mem.Allocator) void {
     allocator.free(arrayOfStructsOfPointers);
 }
 
+// StructOfIndexes data
 const StructOfIndexes = struct {
     aIndex: u32,
     bIndex: u32,
@@ -38,11 +50,6 @@ const StructOfIndexes = struct {
     dIndex: u32,
 };
 var arrayOfStructsOfIndexes: []StructOfIndexes = undefined;
-
-var arrayA: [structElementsCount]u32 = undefined;
-var arrayB: [structElementsCount]u32 = undefined;
-var arrayC: [structElementsCount]u32 = undefined;
-var arrayD: [structElementsCount]u32 = undefined;
 
 fn initStructOfIndexes(allocator: std.mem.Allocator) !void {
     arrayOfStructsOfIndexes = try allocator.alloc(StructOfIndexes, structElementsCount);
@@ -67,6 +74,7 @@ pub fn main() !void {
     try stdout.print("Size of StructOfIndexes: {} bytes\n", .{@sizeOf(StructOfIndexes)});
     try stdout.print("Size of StructOfPointers: {} bytes\n", .{@sizeOf(StructOfPointers)});
 
+    initCommonData();
     const allocator = std.heap.page_allocator;
     try initStructOfIndexes(allocator);
     defer deinitStructOfIndexes(allocator);
@@ -91,7 +99,7 @@ fn benchmarkStructOfPointers(_: std.mem.Allocator) void {
         sum += el.a.* + el.b.* + el.c.* + el.d.*;
     }
 
-    if (sum != 1000000) @panic("result is wrong"); // Use result to prevent optimization
+    if (sum != 10 * structElementsCount) @panic("sum is wrong"); // Use sum to prevent optimization
 }
 
 fn benchmarkStructOfIndexes(_: std.mem.Allocator) void {
@@ -100,5 +108,5 @@ fn benchmarkStructOfIndexes(_: std.mem.Allocator) void {
         sum += arrayA[el.aIndex] + arrayB[el.bIndex] + arrayC[el.cIndex] + arrayD[el.dIndex];
     }
 
-    if (sum != 1000000) @panic("result is wrong"); // Use result to prevent optimization
+    if (sum != 10 * structElementsCount) @panic("sum is wrong"); // Use sum to prevent optimization
 }
