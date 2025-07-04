@@ -22,20 +22,26 @@ pub fn build(b: *std.Build) void {
     };
 
     for (example_names) |example_name| {
-        const example = b.addExecutable(.{
-            .name = example_name,
-            .root_source_file = .{ .src_path = .{ .owner = b, .sub_path = b.fmt("src/{s}.zig", .{example_name}) } },
-            .target = target,
-            .optimize = optimize,
+
+        const example_module = b.createModule(.{
+            .root_source_file = b.path(b.fmt("src/{s}.zig", .{example_name})),
+                .target = target,
+                .optimize = optimize,
         });
-        const install_example = b.addInstallArtifact(example, .{});
+
+        const exampleExe = b.addExecutable(.{
+            .name = example_name,
+            .root_module = example_module
+        });
+        const install_example = b.addInstallArtifact(exampleExe, .{});
+        b.installArtifact(exampleExe);
         const opts = .{ .target = target, .optimize = optimize };
         const zbench_module = b.dependency("zbench", opts).module("zbench");
-        example.root_module.addImport("zbench", zbench_module);
-        example_step.dependOn(&example.step);
+        exampleExe.root_module.addImport("zbench", zbench_module);
+        example_step.dependOn(&exampleExe.step);
         example_step.dependOn(&install_example.step);
 
-        const run_cmd = b.addRunArtifact(example);
+        const run_cmd = b.addRunArtifact(exampleExe);
         run_cmd.step.dependOn(b.getInstallStep());
 
         // This allows the user to pass arguments to the application in the build
