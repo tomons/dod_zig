@@ -19,6 +19,7 @@ pub fn build(b: *std.Build) void {
     const example_names = [_][]const u8{
         "indexes_vs_pointers",
         "indexes_vs_pointers_dynamic",
+        "booleans_out_of_band",
     };
 
     for (example_names) |example_name| {
