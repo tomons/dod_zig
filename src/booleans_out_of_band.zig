@@ -4,8 +4,7 @@ const zbench = @import("zbench");
 
 // Common data
 const totalMonsters = 1000;
-const everyNthMonsterIsDeadInitially = 100; // every 100th monster is dead
-const maxDeadMonsters = 200;
+const maxDeadMonsters = 100;
 
 const Animation = struct {
     frame_count: u32,
@@ -40,12 +39,11 @@ fn initMonstersWithBool(allocator: std.mem.Allocator) !void {
     try monstersWithBool.ensureTotalCapacity(totalMonsters);
     for (0..totalMonsters) |index| {
         const i: u32 = @intCast(index);
-        const alive = i % everyNthMonsterIsDeadInitially != 0;
         const monster = MonsterWithBool{
             .anim = &animations[i % animations.len],
-            .hp = if (alive) 100 + i else 0,
+            .hp = 100 + i,
             .y = 10 + i,
-            .alive = alive,
+            .alive = true,
         };
         try monstersWithBool.append(monster);
     }
@@ -71,17 +69,13 @@ fn initMonstersWithoutBool(allocator: std.mem.Allocator) !void {
     dead_monsters_without_bool = ArrayList(MonsterWithoutBool).init(allocator);
     for (0..totalMonsters) |index| {
         const i: u32 = @intCast(index);
-        const alive = i % everyNthMonsterIsDeadInitially != 0; // every 100th monster is dead
         const monster = MonsterWithoutBool{
             .anim = &animations[i % animations.len],
-            .hp = if (alive) 100 + i else 0,
+            .hp = 100 + i,
             .y = 10 + i,
         };
-        if (alive) {
-            try alive_monsters_without_bool.append(monster);
-        } else {
-            try dead_monsters_without_bool.append(monster);
-        }
+
+        try alive_monsters_without_bool.append(monster);
     }
 }
 
