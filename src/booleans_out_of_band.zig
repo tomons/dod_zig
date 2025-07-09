@@ -4,6 +4,8 @@ const zbench = @import("zbench");
 
 // Common data
 const totalMonsters = 1000;
+const everyNthMonsterIsDeadInitially = 100; // every 100th monster is dead
+const maxDeadMonsters = 200;
 
 const Animation = struct {
     frame_count: u32,
@@ -38,7 +40,7 @@ fn initMonstersWithBool(allocator: std.mem.Allocator) !void {
     try monstersWithBool.ensureTotalCapacity(totalMonsters);
     for (0..totalMonsters) |index| {
         const i: u32 = @intCast(index);
-        const alive = i % 10 != 0; // every 10th monster is dead
+        const alive = i % everyNthMonsterIsDeadInitially != 0;
         const monster = MonsterWithBool{
             .anim = &animations[i % animations.len],
             .hp = if (alive) 100 + i else 0,
@@ -69,7 +71,7 @@ fn initMonstersWithoutBool(allocator: std.mem.Allocator) !void {
     dead_monsters_without_bool = ArrayList(MonsterWithoutBool).init(allocator);
     for (0..totalMonsters) |index| {
         const i: u32 = @intCast(index);
-        const alive = i % 10 != 0; // every 10th monster is dead
+        const alive = i % everyNthMonsterIsDeadInitially != 0; // every 100th monster is dead
         const monster = MonsterWithoutBool{
             .anim = &animations[i % animations.len],
             .hp = if (alive) 100 + i else 0,
@@ -114,6 +116,11 @@ pub fn main() !void {
 }
 
 fn benchmarkWithBool(_: std.mem.Allocator) void {
+    var dead_count: u32 = 0;
+    for (monstersWithBool.items) |*monster| {
+        if (!monster.alive) dead_count += 1;
+    }
+
     for (monstersWithBool.items) |*monster| {
         if (monster.alive) {
             // Simulate some work with the monster
@@ -121,7 +128,11 @@ fn benchmarkWithBool(_: std.mem.Allocator) void {
             if (monster.anim.current_frame >= monster.anim.frame_count) {
                 monster.anim.current_frame = 0;
             }
-            monster.hp -= 1;
+
+            if (monster.hp > 0 and dead_count < maxDeadMonsters) {
+                monster.hp -= 1;
+            }
+
             if (monster.hp == 0) {
                 // Monster dies
                 monster.alive = false;
@@ -143,7 +154,11 @@ fn benchmarkWithoutBool(allocator: std.mem.Allocator) void {
         if (monster.anim.current_frame >= monster.anim.frame_count) {
             monster.anim.current_frame = 0;
         }
-        monster.hp -= 1;
+
+        if (monster.hp > 0 and dead_monsters_without_bool.items.len < maxDeadMonsters) {
+            monster.hp -= 1;
+        }
+
         if (monster.hp == 0) {
             monsters_to_die_indexes.append(i) catch unreachable;
             dead_monsters_without_bool.append(monster.*) catch unreachable;
@@ -157,5 +172,5 @@ fn benchmarkWithoutBool(allocator: std.mem.Allocator) void {
     }
 
     // Use monstersWithBool to prevent optimization
-    if (alive_monsters_without_bool.items.len > 100000) @panic("wrong index length");
+    if (alive_monsters_without_bool.items.len > 100000) @panic("wrong items length");
 }
