@@ -121,7 +121,7 @@ const WithoutBoolPerfTest = struct {
         self.dead_monsters.deinit();
     }
 
-    fn run(self: *WithoutBoolPerfTest, allocator: std.mem.Allocator) bool {
+    fn run(self: *WithoutBoolPerfTest, allocator: std.mem.Allocator) !bool {
         var monsters_to_die_indexes: ArrayList(u32) = ArrayList(u32).init(allocator);
         defer monsters_to_die_indexes.deinit();
         for (self.alive_monsters.items, 0..) |*monster, index| {
@@ -137,8 +137,8 @@ const WithoutBoolPerfTest = struct {
             }
 
             if (monster.hp == 0) {
-                monsters_to_die_indexes.append(i) catch unreachable;
-                self.dead_monsters.append(monster.*) catch unreachable;
+                try monsters_to_die_indexes.append(i);
+                try self.dead_monsters.append(monster.*);
             }
         }
 
@@ -187,6 +187,9 @@ fn benchmarkWithBool(allocator: std.mem.Allocator) void {
 }
 
 fn benchmarkWithoutBool(allocator: std.mem.Allocator) void {
-    const failed = without_bool_perf_test.run(allocator);
+    const failed = without_bool_perf_test.run(allocator) catch |err| catch_block: {
+        std.debug.print("Error in benchmarkWithoutBool: {}\n", .{err});
+        break :catch_block true;
+    };
     if (failed) @panic("test failed");
 }
