@@ -7,18 +7,18 @@ const std = @import("std");
 const zbench = @import("zbench");
 
 //common data
-const structElementsCount = 100000;
-var arrayA: [structElementsCount]u32 = undefined;
-var arrayB: [structElementsCount]u32 = undefined;
-var arrayC: [structElementsCount]u32 = undefined;
-var arrayD: [structElementsCount]u32 = undefined;
+const struct_elements_count = 100000;
+var array_a: [struct_elements_count]u32 = undefined;
+var array_b: [struct_elements_count]u32 = undefined;
+var array_c: [struct_elements_count]u32 = undefined;
+var array_d: [struct_elements_count]u32 = undefined;
 
 fn initCommonData() void {
-    for (0..structElementsCount) |i| {
-        arrayA[i] = 1;
-        arrayB[i] = 2;
-        arrayC[i] = 3;
-        arrayD[i] = 4;
+    for (0..struct_elements_count) |i| {
+        array_a[i] = 1;
+        array_b[i] = 2;
+        array_c[i] = 3;
+        array_d[i] = 4;
     }
 }
 
@@ -29,36 +29,36 @@ const StructOfPointers = struct {
     c: *u32,
     d: *u32,
 };
-var arrayOfStructsOfPointers: [structElementsCount]StructOfPointers = undefined;
+var array_of_struct_of_pointers: [struct_elements_count]StructOfPointers = undefined;
 
 fn initStructOfPointers() void {
-    for (0..structElementsCount) |i| {
-        arrayOfStructsOfPointers[i].a = &(arrayA[i]);
-        arrayOfStructsOfPointers[i].b = &(arrayB[i]);
-        arrayOfStructsOfPointers[i].c = &(arrayC[i]);
-        arrayOfStructsOfPointers[i].d = &(arrayD[i]);
+    for (0..struct_elements_count) |i| {
+        array_of_struct_of_pointers[i].a = &(array_a[i]);
+        array_of_struct_of_pointers[i].b = &(array_b[i]);
+        array_of_struct_of_pointers[i].c = &(array_c[i]);
+        array_of_struct_of_pointers[i].d = &(array_d[i]);
     }
 }
 
 // StructOfIndexes data
 const StructOfIndexes = struct {
-    aIndex: u32,
-    bIndex: u32,
-    cIndex: u32,
-    dIndex: u32,
+    a_index: u32,
+    b_index: u32,
+    c_index: u32,
+    d_index: u32,
 };
-var arrayOfStructsOfIndexes: [structElementsCount]StructOfIndexes = undefined;
+var array_of_struct_of_indexes: [struct_elements_count]StructOfIndexes = undefined;
 
 fn initStructOfIndexes() void {
-    for (0..structElementsCount) |i| {
-        arrayA[i] = 1;
-        arrayB[i] = 2;
-        arrayC[i] = 3;
-        arrayD[i] = 4;
-        arrayOfStructsOfIndexes[i].aIndex = @intCast(i);
-        arrayOfStructsOfIndexes[i].bIndex = @intCast(i);
-        arrayOfStructsOfIndexes[i].cIndex = @intCast(i);
-        arrayOfStructsOfIndexes[i].dIndex = @intCast(i);
+    for (0..struct_elements_count) |i| {
+        array_a[i] = 1;
+        array_b[i] = 2;
+        array_c[i] = 3;
+        array_d[i] = 4;
+        array_of_struct_of_indexes[i].a_index = @intCast(i);
+        array_of_struct_of_indexes[i].b_index = @intCast(i);
+        array_of_struct_of_indexes[i].c_index = @intCast(i);
+        array_of_struct_of_indexes[i].d_index = @intCast(i);
     }
 }
 
@@ -83,18 +83,18 @@ pub fn main() !void {
 
 fn benchmarkStructOfPointers(_: std.mem.Allocator) void {
     var sum: u64 = 0;
-    for (arrayOfStructsOfPointers) |el| {
+    for (array_of_struct_of_pointers) |el| {
         sum += el.a.* + el.b.* + el.c.* + el.d.*;
     }
 
-    if (sum != 10 * structElementsCount) @panic("sum is wrong"); // Use sum to prevent optimization
+    if (sum != 10 * struct_elements_count) @panic("sum is wrong"); // Use sum to prevent optimization
 }
 
 fn benchmarkStructOfIndexes(_: std.mem.Allocator) void {
     var sum: u64 = 0;
-    for (arrayOfStructsOfIndexes) |el| {
-        sum += arrayA[el.aIndex] + arrayB[el.bIndex] + arrayC[el.cIndex] + arrayD[el.dIndex];
+    for (array_of_struct_of_indexes) |el| {
+        sum += array_a[el.a_index] + array_b[el.b_index] + array_c[el.c_index] + array_d[el.d_index];
     }
 
-    if (sum != 10 * structElementsCount) @panic("sum is wrong"); // Use sum to prevent optimization
+    if (sum != 10 * struct_elements_count) @panic("sum is wrong"); // Use sum to prevent optimization
 }
