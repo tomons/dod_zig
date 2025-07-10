@@ -3,8 +3,8 @@ const ArrayList = std.ArrayList;
 const zbench = @import("zbench");
 
 // Common data
-const totalMonsters = 1000;
-const maxDeadMonsters = 100;
+const total_monsters = 1000;
+const max_dead_monsters = 100;
 
 const Animation = struct {
     frame_count: u32,
@@ -36,8 +36,8 @@ const WithBoolPerfTest = struct {
 
     fn init(allocator: std.mem.Allocator) !WithBoolPerfTest {
         var monsters = ArrayList(Monster).init(allocator);
-        try monsters.ensureTotalCapacity(totalMonsters);
-        for (0..totalMonsters) |index| {
+        try monsters.ensureTotalCapacity(total_monsters);
+        for (0..total_monsters) |index| {
             const i: u32 = @intCast(index);
             const monster = Monster{
                 .anim = &animations[i % animations.len],
@@ -72,7 +72,7 @@ const WithBoolPerfTest = struct {
                 monster.anim.current_frame = 0;
             }
 
-            if (monster.hp > 0 and dead_count < maxDeadMonsters) {
+            if (monster.hp > 0 and dead_count < max_dead_monsters) {
                 monster.hp -= 1;
             }
 
@@ -99,8 +99,8 @@ const WithoutBoolPerfTest = struct {
 
     fn init(allocator: std.mem.Allocator) !WithoutBoolPerfTest {
         var alive_monsters = ArrayList(Monster).init(allocator);
-        try alive_monsters.ensureTotalCapacity(totalMonsters);
-        for (0..totalMonsters) |index| {
+        try alive_monsters.ensureTotalCapacity(total_monsters);
+        for (0..total_monsters) |index| {
             const i: u32 = @intCast(index);
             const monster = Monster{
                 .anim = &animations[i % animations.len],
@@ -132,7 +132,7 @@ const WithoutBoolPerfTest = struct {
                 monster.anim.current_frame = 0;
             }
 
-            if (monster.hp > 0 and self.dead_monsters.items.len < maxDeadMonsters) {
+            if (monster.hp > 0 and self.dead_monsters.items.len < max_dead_monsters) {
                 monster.hp -= 1;
             }
 
@@ -153,23 +153,23 @@ const WithoutBoolPerfTest = struct {
     }
 };
 
-var withBoolPerfTest: WithBoolPerfTest = undefined;
-var withoutBoolPerfTest: WithoutBoolPerfTest = undefined;
+var with_bool_perf_test: WithBoolPerfTest = undefined;
+var without_bool_perf_test: WithoutBoolPerfTest = undefined;
 
 pub fn main() !void {
     const stdout = std.io.getStdOut().writer();
-    try stdout.print("Size of MonsterWithBool: {} bytes\n", .{@sizeOf(WithBoolPerfTest.Monster)});
-    try stdout.print("Size of MonsterWithoutBool: {} bytes\n", .{@sizeOf(WithoutBoolPerfTest.Monster)});
+    try stdout.print("Size of WithBoolPerfTest.Monster: {} bytes\n", .{@sizeOf(WithBoolPerfTest.Monster)});
+    try stdout.print("Size of WithoutBoolPerfTest.Monster: {} bytes\n", .{@sizeOf(WithoutBoolPerfTest.Monster)});
 
     const allocator = std.heap.page_allocator;
 
     initCommonData();
 
-    withBoolPerfTest = try WithBoolPerfTest.init(allocator);
-    defer withBoolPerfTest.deinit();
+    with_bool_perf_test = try WithBoolPerfTest.init(allocator);
+    defer with_bool_perf_test.deinit();
 
-    withoutBoolPerfTest = try WithoutBoolPerfTest.init(allocator);
-    defer withoutBoolPerfTest.deinit();
+    without_bool_perf_test = try WithoutBoolPerfTest.init(allocator);
+    defer without_bool_perf_test.deinit();
 
     var bench = zbench.Benchmark.init(std.heap.page_allocator, .{});
     defer bench.deinit();
@@ -182,11 +182,11 @@ pub fn main() !void {
 }
 
 fn benchmarkWithBool(allocator: std.mem.Allocator) void {
-    const failed = withBoolPerfTest.run(allocator);
+    const failed = with_bool_perf_test.run(allocator);
     if (failed) @panic("test failed");
 }
 
 fn benchmarkWithoutBool(allocator: std.mem.Allocator) void {
-    const failed = withoutBoolPerfTest.run(allocator);
+    const failed = without_bool_perf_test.run(allocator);
     if (failed) @panic("test failed");
 }
