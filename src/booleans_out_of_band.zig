@@ -24,99 +24,48 @@ fn initCommonData() void {
     }
 }
 
-// MonsterWithBool data
-const MonsterWithBool = struct {
-    anim: *Animation,
-    hp: u32,
-    y: u32,
-    alive: bool,
-};
+const WithBoolPerfTest = struct {
+    monsters: ArrayList(Monster) = undefined,
 
-var monstersWithBool: ArrayList(MonsterWithBool) = undefined;
+    const Monster = struct {
+        anim: *Animation,
+        hp: u32,
+        y: u32,
+        alive: bool,
+    };
 
-fn initMonstersWithBool(allocator: std.mem.Allocator) !void {
-    monstersWithBool = ArrayList(MonsterWithBool).init(allocator);
-    try monstersWithBool.ensureTotalCapacity(totalMonsters);
-    for (0..totalMonsters) |index| {
-        const i: u32 = @intCast(index);
-        const monster = MonsterWithBool{
-            .anim = &animations[i % animations.len],
-            .hp = 100 + i,
-            .y = 10 + i,
-            .alive = true,
+    fn init(allocator: std.mem.Allocator) !WithBoolPerfTest {
+        var monsters = ArrayList(Monster).init(allocator);
+        try monsters.ensureTotalCapacity(totalMonsters);
+        for (0..totalMonsters) |index| {
+            const i: u32 = @intCast(index);
+            const monster = Monster{
+                .anim = &animations[i % animations.len],
+                .hp = 100 + i,
+                .y = 10 + i,
+                .alive = true,
+            };
+            try monsters.append(monster);
+        }
+
+        return WithBoolPerfTest{
+            .monsters = monsters,
         };
-        try monstersWithBool.append(monster);
-    }
-}
-
-fn deinitMonstersWithBool() void {
-    monstersWithBool.deinit();
-}
-
-// MonstersWithoutBool data
-const MonsterWithoutBool = struct {
-    anim: *Animation,
-    hp: u32,
-    y: u32,
-};
-
-var alive_monsters_without_bool: ArrayList(MonsterWithoutBool) = undefined;
-var dead_monsters_without_bool: ArrayList(MonsterWithoutBool) = undefined;
-
-fn initMonstersWithoutBool(allocator: std.mem.Allocator) !void {
-    alive_monsters_without_bool = ArrayList(MonsterWithoutBool).init(allocator);
-    try alive_monsters_without_bool.ensureTotalCapacity(totalMonsters);
-    dead_monsters_without_bool = ArrayList(MonsterWithoutBool).init(allocator);
-    for (0..totalMonsters) |index| {
-        const i: u32 = @intCast(index);
-        const monster = MonsterWithoutBool{
-            .anim = &animations[i % animations.len],
-            .hp = 100 + i,
-            .y = 10 + i,
-        };
-
-        try alive_monsters_without_bool.append(monster);
-    }
-}
-
-fn deinitMonstersWithoutBool() void {
-    alive_monsters_without_bool.deinit();
-    dead_monsters_without_bool.deinit();
-}
-
-pub fn main() !void {
-    const stdout = std.io.getStdOut().writer();
-    try stdout.print("Size of MonsterWithBool: {} bytes\n", .{@sizeOf(MonsterWithBool)});
-    try stdout.print("Size of MonsterWithoutBool: {} bytes\n", .{@sizeOf(MonsterWithoutBool)});
-
-    const allocator = std.heap.page_allocator;
-
-    initCommonData();
-
-    try initMonstersWithBool(allocator);
-    defer deinitMonstersWithBool();
-
-    try initMonstersWithoutBool(allocator);
-    defer deinitMonstersWithoutBool();
-
-    var bench = zbench.Benchmark.init(std.heap.page_allocator, .{});
-    defer bench.deinit();
-
-    try bench.add("With bool", benchmarkWithBool, .{});
-    try bench.add("Without bool", benchmarkWithoutBool, .{});
-
-    try stdout.writeAll("\n");
-    try bench.run(stdout);
-}
-
-fn benchmarkWithBool(_: std.mem.Allocator) void {
-    var dead_count: u32 = 0;
-    for (monstersWithBool.items) |*monster| {
-        if (!monster.alive) dead_count += 1;
     }
 
-    for (monstersWithBool.items) |*monster| {
-        if (monster.alive) {
+    fn deinit(self: WithBoolPerfTest) void {
+        self.monsters.deinit();
+    }
+
+    fn run(self: WithBoolPerfTest, _: std.mem.Allocator) bool {
+        var dead_count: u32 = 0;
+        for (self.monsters.items) |*monster| {
+            if (!monster.alive) dead_count += 1;
+        }
+
+        for (self.monsters.items) |*monster| {
+            if (!monster.alive) continue;
+
             // Simulate some work with the monster
             monster.anim.current_frame += 1;
             if (monster.anim.current_frame >= monster.anim.frame_count) {
@@ -132,39 +81,112 @@ fn benchmarkWithBool(_: std.mem.Allocator) void {
                 monster.alive = false;
             }
         }
+
+        const failed = self.monsters.items[12].anim.current_frame > 100;
+        return failed;
+    }
+};
+
+const WithoutBoolPerfTest = struct {
+    alive_monsters: ArrayList(Monster),
+    dead_monsters: ArrayList(Monster),
+
+    const Monster = struct {
+        anim: *Animation,
+        hp: u32,
+        y: u32,
+    };
+
+    fn init(allocator: std.mem.Allocator) !WithoutBoolPerfTest {
+        var alive_monsters = ArrayList(Monster).init(allocator);
+        try alive_monsters.ensureTotalCapacity(totalMonsters);
+        for (0..totalMonsters) |index| {
+            const i: u32 = @intCast(index);
+            const monster = Monster{
+                .anim = &animations[i % animations.len],
+                .hp = 100 + i,
+                .y = 10 + i,
+            };
+
+            try alive_monsters.append(monster);
+        }
+        return WithoutBoolPerfTest{
+            .alive_monsters = alive_monsters,
+            .dead_monsters = ArrayList(Monster).init(allocator),
+        };
     }
 
-    // Use monstersWithBool to prevent optimization
-    if (monstersWithBool.items[12].anim.current_frame > 100) @panic("Current frame of monster 12 is too high");
+    fn deinit(self: WithoutBoolPerfTest) void {
+        self.alive_monsters.deinit();
+        self.dead_monsters.deinit();
+    }
+
+    fn run(self: *WithoutBoolPerfTest, allocator: std.mem.Allocator) bool {
+        var monsters_to_die_indexes: ArrayList(u32) = ArrayList(u32).init(allocator);
+        defer monsters_to_die_indexes.deinit();
+        for (self.alive_monsters.items, 0..) |*monster, index| {
+            // Simulate some work with the monster
+            const i: u32 = @intCast(index);
+            monster.anim.current_frame += 1;
+            if (monster.anim.current_frame >= monster.anim.frame_count) {
+                monster.anim.current_frame = 0;
+            }
+
+            if (monster.hp > 0 and self.dead_monsters.items.len < maxDeadMonsters) {
+                monster.hp -= 1;
+            }
+
+            if (monster.hp == 0) {
+                monsters_to_die_indexes.append(i) catch unreachable;
+                self.dead_monsters.append(monster.*) catch unreachable;
+            }
+        }
+
+        for (0..monsters_to_die_indexes.items.len) |i| {
+            const reversed_index = monsters_to_die_indexes.items.len - 1 - i;
+            const monster_to_die_index = monsters_to_die_indexes.items[reversed_index];
+            _ = self.alive_monsters.swapRemove(monster_to_die_index);
+        }
+
+        const failed = self.alive_monsters.items.len > 100000;
+        return failed;
+    }
+};
+
+var withBoolPerfTest: WithBoolPerfTest = undefined;
+var withoutBoolPerfTest: WithoutBoolPerfTest = undefined;
+
+pub fn main() !void {
+    const stdout = std.io.getStdOut().writer();
+    try stdout.print("Size of MonsterWithBool: {} bytes\n", .{@sizeOf(WithBoolPerfTest.Monster)});
+    try stdout.print("Size of MonsterWithoutBool: {} bytes\n", .{@sizeOf(WithoutBoolPerfTest.Monster)});
+
+    const allocator = std.heap.page_allocator;
+
+    initCommonData();
+
+    withBoolPerfTest = try WithBoolPerfTest.init(allocator);
+    defer withBoolPerfTest.deinit();
+
+    withoutBoolPerfTest = try WithoutBoolPerfTest.init(allocator);
+    defer withoutBoolPerfTest.deinit();
+
+    var bench = zbench.Benchmark.init(std.heap.page_allocator, .{});
+    defer bench.deinit();
+
+    try bench.add("With bool", benchmarkWithBool, .{});
+    try bench.add("Without bool", benchmarkWithoutBool, .{});
+
+    try stdout.writeAll("\n");
+    try bench.run(stdout);
+}
+
+fn benchmarkWithBool(allocator: std.mem.Allocator) void {
+    const failed = withBoolPerfTest.run(allocator);
+    if (failed) @panic("test failed");
 }
 
 fn benchmarkWithoutBool(allocator: std.mem.Allocator) void {
-    var monsters_to_die_indexes: ArrayList(u32) = ArrayList(u32).init(allocator);
-    defer monsters_to_die_indexes.deinit();
-    for (alive_monsters_without_bool.items, 0..) |*monster, index| {
-        // Simulate some work with the monster
-        const i: u32 = @intCast(index);
-        monster.anim.current_frame += 1;
-        if (monster.anim.current_frame >= monster.anim.frame_count) {
-            monster.anim.current_frame = 0;
-        }
-
-        if (monster.hp > 0 and dead_monsters_without_bool.items.len < maxDeadMonsters) {
-            monster.hp -= 1;
-        }
-
-        if (monster.hp == 0) {
-            monsters_to_die_indexes.append(i) catch unreachable;
-            dead_monsters_without_bool.append(monster.*) catch unreachable;
-        }
-    }
-
-    for (0..monsters_to_die_indexes.items.len) |i| {
-        const reversed_index = monsters_to_die_indexes.items.len - 1 - i;
-        const monster_to_die_index = monsters_to_die_indexes.items[reversed_index];
-        _ = alive_monsters_without_bool.swapRemove(monster_to_die_index);
-    }
-
-    // Use monstersWithBool to prevent optimization
-    if (alive_monsters_without_bool.items.len > 100000) @panic("wrong items length");
+    const failed = withoutBoolPerfTest.run(allocator);
+    if (failed) @panic("test failed");
 }
