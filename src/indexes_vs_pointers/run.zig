@@ -1,8 +1,7 @@
-// Use indexes instead of pointers:
-// struct { a: *A, b: *B, c: *C, d: *D } takes 32 bytes on 64-bit CPUs, 16 bytes on 32-bit CPUs
-// struct { a: u32, b: u32, c: u32, d: u32 } takes 16 bytes on 64-bit CPUs, 16 bytes on 32-bit CPUs
-// However, we need to watch out for type safety.
-
+/// Use indexes instead of pointers:
+/// struct { a: *A, b: *B, c: *C, d: *D } takes 32 bytes on 64-bit CPUs, 16 bytes on 32-bit CPUs
+/// struct { a: u32, b: u32, c: u32, d: u32 } takes 16 bytes on 64-bit CPUs, 16 bytes on 32-bit CPUs
+/// However, we need to watch out for type safety.
 const std = @import("std");
 const zbench = @import("zbench");
 

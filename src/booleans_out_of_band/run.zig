@@ -1,16 +1,22 @@
+/// "Store booleans out of band" optimization.
+///
+/// WithBoolMonster: 24 bytes
+/// WithoutBoolMonster: 16 bytes
+/// IndexesInsteadOfPointersMonster: 12 bytes
 const std = @import("std");
 const zbench = @import("zbench");
+
 const WithBoolPerfTest = @import("with_bool_perf_test.zig").WithBoolPerfTest;
 const WithBoolMonster = @import("with_bool_perf_test.zig").Monster;
+
 const WithoutBoolPerfTest = @import("without_bool_perf_test.zig").WithoutBoolPerfTest;
 const WithoutBoolMonster = @import("without_bool_perf_test.zig").Monster;
 
 const IndexesInsteadOfPointersPerfTest = @import("indexes_instead_of_pointers_perf_test.zig").IndexesInsteadOfPointersPerfTest;
-const IndexesInsteadOfPointersPerfTestMonster = @import("indexes_instead_of_pointers_perf_test.zig").Monster;
+const IndexesInsteadOfPointersMonster = @import("indexes_instead_of_pointers_perf_test.zig").Monster;
 
 const initAnimations = @import("common.zig").initAnimations;
 
-// Common data
 const total_monsters = 1000;
 const max_dead_monsters = 100;
 
@@ -22,7 +28,7 @@ pub fn main() !void {
     const stdout = std.io.getStdOut().writer();
     try stdout.print("Size of WithBoolMonster: {} bytes\n", .{@sizeOf(WithBoolMonster)});
     try stdout.print("Size of WithoutBoolMonster: {} bytes\n", .{@sizeOf(WithoutBoolMonster)});
-    try stdout.print("Size of IndexesInsteadOfPointersPerfTestMonster: {} bytes\n", .{@sizeOf(IndexesInsteadOfPointersPerfTestMonster)});
+    try stdout.print("Size of IndexesInsteadOfPointersMonster: {} bytes\n", .{@sizeOf(IndexesInsteadOfPointersMonster)});
 
     const allocator = std.heap.page_allocator;
 
