@@ -70,22 +70,24 @@ fn deinitStructOfIndexes(allocator: std.mem.Allocator) void {
 
 pub fn main() !void {
     const stdout = std.io.getStdOut().writer();
-    try stdout.print("Size of StructOfIndexes: {} bytes\n", .{@sizeOf(StructOfIndexes)});
+
     try stdout.print("Size of StructOfPointers: {} bytes\n", .{@sizeOf(StructOfPointers)});
+    try stdout.print("Size of StructOfIndexes: {} bytes\n", .{@sizeOf(StructOfIndexes)});
 
     initCommonData();
     const allocator = std.heap.page_allocator;
-    try initStructOfIndexes(allocator);
-    defer deinitStructOfIndexes(allocator);
 
     try initStructOfPointers(allocator);
     defer deinitStructOfPointers(allocator);
 
+    try initStructOfIndexes(allocator);
+    defer deinitStructOfIndexes(allocator);
+
     var bench = zbench.Benchmark.init(std.heap.page_allocator, .{});
     defer bench.deinit();
 
-    try bench.add("Struct of Indexes", benchmarkStructOfIndexes, .{});
     try bench.add("Struct of Pointers", benchmarkStructOfPointers, .{});
+    try bench.add("Struct of Indexes", benchmarkStructOfIndexes, .{});
 
     try stdout.writeAll("\n");
     try bench.run(stdout);
