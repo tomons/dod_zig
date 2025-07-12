@@ -49,6 +49,13 @@ pub const IndexesInsteadOfPointersPerfTest = struct {
         defer monsters_to_die_indexes.deinit();
         for (self.alive_monsters.items, 0..) |*monster, index| {
             // Simulate some work with the monster
+            const anim = self.animations.*[monster.anim_index];
+            const max_y = anim.some_value * 10;
+            if (monster.y > max_y) {
+                monster.y -= anim.some_value;
+            } else {
+                monster.y += anim.some_value;
+            }
             const i: u32 = @intCast(index);
 
             if (monster.hp > 0 and self.dead_monsters.items.len < self.max_dead_monsters) {

@@ -26,7 +26,7 @@ pub fn main() !void {
 
     const allocator = std.heap.page_allocator;
 
-    var animations = try initAnimations(allocator, total_monsters);
+    var animations = try initAnimations(allocator, 8);
     defer allocator.free(animations);
 
     with_bool_perf_test = try WithBoolPerfTest.init(allocator, &animations, total_monsters, max_dead_monsters);

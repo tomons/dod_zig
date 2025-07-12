@@ -50,6 +50,14 @@ pub const WithBoolPerfTest = struct {
         for (self.monsters.items) |*monster| {
             if (!monster.alive) continue;
 
+            // Simulate some work with the monster
+            const max_y = monster.anim.some_value * 10;
+            if (monster.y > max_y) {
+                monster.y -= monster.anim.some_value;
+            } else {
+                monster.y += monster.anim.some_value;
+            }
+
             if (monster.hp > 0 and dead_count < self.max_dead_monsters) {
                 monster.hp -= 1;
             }
