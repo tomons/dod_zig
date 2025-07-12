@@ -24,7 +24,7 @@ pub fn build(b: *std.Build) void {
 
     for (example_names) |example_name| {
         const example_module = b.createModule(.{
-            .root_source_file = b.path(b.fmt("src/{s}.zig", .{example_name})),
+            .root_source_file = b.path(b.fmt("src/{s}/run.zig", .{example_name})),
             .target = target,
             .optimize = optimize,
         });
