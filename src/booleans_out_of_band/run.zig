@@ -17,8 +17,8 @@ const IndexesInsteadOfPointersMonster = @import("indexes_instead_of_pointers_per
 
 const initAnimations = @import("common.zig").initAnimations;
 
-const total_monsters = 1000;
-const max_dead_monsters = 100;
+const total_monsters = 10000;
+const max_dead_monsters = 1000;
 
 var with_bool_perf_test: WithBoolPerfTest = undefined;
 var without_bool_perf_test: WithoutBoolPerfTest = undefined;
