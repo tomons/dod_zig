@@ -13,10 +13,10 @@ pub const IndexesInsteadOfPointersPerfTest = struct {
 
     alive_monsters: ArrayList(Monster),
     dead_monsters: ArrayList(Monster),
-    animations: *([]Animation) = undefined,
+    animations: []Animation = undefined,
     max_dead_monsters: u32 = undefined,
 
-    pub fn init(allocator: std.mem.Allocator, animations: *([]Animation), total_monsters: u32, max_dead_monsters: u32) !Self {
+    pub fn init(allocator: std.mem.Allocator, animations: []Animation, total_monsters: u32, max_dead_monsters: u32) !Self {
         var alive_monsters = ArrayList(Monster).init(allocator);
         try alive_monsters.ensureTotalCapacity(total_monsters);
         for (0..total_monsters) |index| {
@@ -49,7 +49,7 @@ pub const IndexesInsteadOfPointersPerfTest = struct {
         defer monsters_to_die_indexes.deinit();
         for (self.alive_monsters.items, 0..) |*monster, index| {
             // Simulate some work with the monster
-            const anim = self.animations.*[monster.anim_index];
+            const anim = self.animations[monster.anim_index];
             const max_y = anim.some_value * 10;
             if (monster.y > max_y) {
                 monster.y -= anim.some_value;

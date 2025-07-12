@@ -13,16 +13,16 @@ pub const WithoutBoolPerfTest = struct {
 
     alive_monsters: ArrayList(Monster),
     dead_monsters: ArrayList(Monster),
-    animations: *([]Animation) = undefined,
+    animations: []Animation = undefined,
     max_dead_monsters: u32 = undefined,
 
-    pub fn init(allocator: std.mem.Allocator, animations: *([]Animation), total_monsters: u32, max_dead_monsters: u32) !Self {
+    pub fn init(allocator: std.mem.Allocator, animations: []Animation, total_monsters: u32, max_dead_monsters: u32) !Self {
         var alive_monsters = ArrayList(Monster).init(allocator);
         try alive_monsters.ensureTotalCapacity(total_monsters);
         for (0..total_monsters) |index| {
             const i: u32 = @intCast(index);
             const monster = Monster{
-                .anim = &(animations.*[i % animations.len]),
+                .anim = &(animations[i % animations.len]),
                 .hp = 100 + i,
                 .y = 10 + i,
             };

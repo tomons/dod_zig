@@ -32,16 +32,16 @@ pub fn main() !void {
 
     const allocator = std.heap.page_allocator;
 
-    var animations = try initAnimations(allocator, 8);
+    const animations = try initAnimations(allocator, 8);
     defer allocator.free(animations);
 
-    with_bool_perf_test = try WithBoolPerfTest.init(allocator, &animations, total_monsters, max_dead_monsters);
+    with_bool_perf_test = try WithBoolPerfTest.init(allocator, animations, total_monsters, max_dead_monsters);
     defer with_bool_perf_test.deinit();
 
-    without_bool_perf_test = try WithoutBoolPerfTest.init(allocator, &animations, total_monsters, max_dead_monsters);
+    without_bool_perf_test = try WithoutBoolPerfTest.init(allocator, animations, total_monsters, max_dead_monsters);
     defer without_bool_perf_test.deinit();
 
-    indexes_instead_of_pointers_perf_test = try IndexesInsteadOfPointersPerfTest.init(allocator, &animations, total_monsters, max_dead_monsters);
+    indexes_instead_of_pointers_perf_test = try IndexesInsteadOfPointersPerfTest.init(allocator, animations, total_monsters, max_dead_monsters);
     defer indexes_instead_of_pointers_perf_test.deinit();
 
     var bench = zbench.Benchmark.init(std.heap.page_allocator, .{});
