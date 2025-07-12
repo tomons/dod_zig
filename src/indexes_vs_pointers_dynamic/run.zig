@@ -1,4 +1,4 @@
-// This one is a version of indexes_vs_pointers.zig with dynamic memory allocation.
+// This one is a version of indexes_vs_pointers/run.zig with dynamic memory allocation.
 
 const std = @import("std");
 const zbench = @import("zbench");
