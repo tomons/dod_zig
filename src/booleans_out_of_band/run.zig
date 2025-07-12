@@ -42,8 +42,8 @@ pub fn main() !void {
     defer bench.deinit();
 
     try bench.add("With bool", benchmarkWithBool, .{});
-    try bench.add("Without bool", benchmarkWithoutBool, .{});
-    try bench.add("No bool indexes", benchmarkIndexesInsteadOfPointersBool, .{});
+    try bench.add("No bool", benchmarkWithoutBool, .{});
+    try bench.add("No bool no pointers", benchmarkIndexesInsteadOfPointers, .{});
 
     try stdout.writeAll("\n");
     try bench.run(stdout);
@@ -62,9 +62,9 @@ fn benchmarkWithoutBool(allocator: std.mem.Allocator) void {
     if (failed) @panic("test failed");
 }
 
-fn benchmarkIndexesInsteadOfPointersBool(allocator: std.mem.Allocator) void {
+fn benchmarkIndexesInsteadOfPointers(allocator: std.mem.Allocator) void {
     const failed = indexes_instead_of_pointers_perf_test.run(allocator) catch |err| catch_block: {
-        std.debug.print("Error in benchmarkIndexesInsteadOfPointersBool: {}\n", .{err});
+        std.debug.print("Error in benchmarkIndexesInsteadOfPointers: {}\n", .{err});
         break :catch_block true;
     };
     if (failed) @panic("test failed");
