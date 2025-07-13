@@ -29,7 +29,7 @@ pub const WithoutBoolPerfTest = struct {
 
             try alive_monsters.append(monster);
         }
-        return WithoutBoolPerfTest{
+        return Self{
             .alive_monsters = alive_monsters,
             .dead_monsters = ArrayList(Monster).init(allocator),
             .animations = animations,
@@ -37,12 +37,12 @@ pub const WithoutBoolPerfTest = struct {
         };
     }
 
-    pub fn deinit(self: WithoutBoolPerfTest) void {
+    pub fn deinit(self: Self) void {
         self.alive_monsters.deinit();
         self.dead_monsters.deinit();
     }
 
-    pub fn run(self: *WithoutBoolPerfTest, allocator: std.mem.Allocator) !bool {
+    pub fn run(self: *Self, allocator: std.mem.Allocator) !bool {
         var monsters_to_die_indexes: ArrayList(u32) = ArrayList(u32).init(allocator);
         defer monsters_to_die_indexes.deinit();
         for (self.alive_monsters.items, 0..) |*monster, index| {
