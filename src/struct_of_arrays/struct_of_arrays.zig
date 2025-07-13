@@ -1,5 +1,5 @@
 const std = @import("std");
-const ArrayList = std.ArrayList;
+const MultiArrayList = std.MultiArrayList;
 const Animation = @import("common.zig").Animation;
 
 pub const Monster = struct {
@@ -15,14 +15,14 @@ const Kind = enum {
     human,
 };
 
-pub const ArrayOfStructsPerfTest = struct {
+pub const StructOfArraysPerfTest = struct {
     const Self = @This();
-    monsters: ArrayList(Monster) = undefined,
+    monsters: MultiArrayList(Monster) = undefined,
     animations: []Animation = undefined,
 
     pub fn init(allocator: std.mem.Allocator, animations: []Animation, total_monsters: u32) !Self {
-        var monsters = ArrayList(Monster).init(allocator);
-        try monsters.ensureTotalCapacity(total_monsters);
+        var monsters: MultiArrayList(Monster) = .{};
+        try monsters.ensureTotalCapacity(allocator, total_monsters);
         for (0..total_monsters) |index| {
             const i: u32 = @intCast(index);
             const monster = Monster{
@@ -36,7 +36,7 @@ pub const ArrayOfStructsPerfTest = struct {
                 },
             };
 
-            try monsters.append(monster);
+            try monsters.append(allocator, monster);
         }
         return Self{
             .monsters = monsters,
@@ -45,27 +45,29 @@ pub const ArrayOfStructsPerfTest = struct {
     }
 
     pub fn monstersSizeInBytes(self: *Self) usize {
-        return self.monsters.items.len * @sizeOf(Monster);
+        const animItems = self.monsters.items(.anim);
+        const kindItems = self.monsters.items(.kind);
+        return animItems.len * @sizeOf(*Animation) + kindItems.len * @sizeOf(Kind);
     }
 
-    pub fn deinit(self: *Self) void {
-        self.monsters.deinit();
+    pub fn deinit(self: *Self, allocator: std.mem.Allocator) void {
+        self.monsters.deinit(allocator);
     }
 
     pub fn run(self: *Self, _: std.mem.Allocator) !bool {
-        for (self.monsters.items) |*monster| {
-            const some_value = monster.anim.some_value;
+        for (self.monsters.items(.anim), self.monsters.items(.kind)) |anim, kind| {
+            const some_value = anim.some_value;
             // Simulate some work with the monster
-            switch (monster.kind) {
-                Kind.snake => monster.anim.some_value += 1,
-                Kind.bat => monster.anim.some_value += if (some_value > 0) -1 else 1,
-                Kind.wolf => monster.anim.some_value += 1,
-                Kind.dingo => monster.anim.some_value += if (some_value > 0) -1 else 1,
-                Kind.human => monster.anim.some_value += 1,
+            switch (kind) {
+                Kind.snake => anim.some_value += 1,
+                Kind.bat => anim.some_value += if (some_value > 0) -1 else 1,
+                Kind.wolf => anim.some_value += 1,
+                Kind.dingo => anim.some_value += if (some_value > 0) -1 else 1,
+                Kind.human => anim.some_value += 1,
             }
         }
 
-        const failed = self.monsters.items.len > 100000;
+        const failed = self.monsters.len > 100000;
         return failed;
     }
 };
