@@ -37,7 +37,7 @@ pub const WithoutBoolPerfTest = struct {
         };
     }
 
-    pub fn deinit(self: Self) void {
+    pub fn deinit(self: *Self) void {
         self.alive_monsters.deinit();
         self.dead_monsters.deinit();
     }

@@ -37,11 +37,11 @@ pub const WithBoolPerfTest = struct {
         };
     }
 
-    pub fn deinit(self: Self) void {
+    pub fn deinit(self: *Self) void {
         self.monsters.deinit();
     }
 
-    pub fn run(self: Self, _: std.mem.Allocator) bool {
+    pub fn run(self: *Self, _: std.mem.Allocator) bool {
         var dead_count: u32 = 0;
         for (self.monsters.items) |*monster| {
             if (!monster.alive) dead_count += 1;
