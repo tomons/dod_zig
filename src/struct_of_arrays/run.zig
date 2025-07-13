@@ -1,3 +1,7 @@
+/// "Eliminate padding with struct of arrays instead of array of structs" optimization.
+///
+/// Size of array of structs approximately: 160000 bytes
+/// Size of array struct of arrays approximately: 90000 bytes
 const std = @import("std");
 const zbench = @import("zbench");
 
