@@ -20,6 +20,7 @@ pub fn build(b: *std.Build) void {
         "indexes_vs_pointers",
         "indexes_vs_pointers_dynamic",
         "booleans_out_of_band",
+        "struct_of_arrays",
     };
 
     for (example_names) |example_name| {
