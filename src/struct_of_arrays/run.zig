@@ -4,13 +4,11 @@ const zbench = @import("zbench");
 const ArrayOfStructsPerfTest = @import("array_of_structs.zig").ArrayOfStructsPerfTest;
 const initAnimations = @import("common.zig").initAnimations;
 
-const total_monsters = 10000;
+const total_monsters = 10_000;
 var array_of_structs_perf_test: ArrayOfStructsPerfTest = undefined;
 
 pub fn main() !void {
     const stdout = std.io.getStdOut().writer();
-
-    //todo: print size in bytes
 
     const allocator = std.heap.page_allocator;
 
@@ -19,6 +17,7 @@ pub fn main() !void {
 
     array_of_structs_perf_test = try ArrayOfStructsPerfTest.init(allocator, animations, total_monsters);
     defer array_of_structs_perf_test.deinit();
+    try stdout.print("Size of array of structs: {} bytes\n", .{array_of_structs_perf_test.monstersSizeInBytes()});
 
     var bench = zbench.Benchmark.init(std.heap.page_allocator, .{});
     defer bench.deinit();
