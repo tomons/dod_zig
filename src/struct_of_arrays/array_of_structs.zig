@@ -5,14 +5,14 @@ const Animation = @import("common.zig").Animation;
 pub const Monster = struct {
     anim: *Animation,
     kind: Kind,
-};
 
-const Kind = enum {
-    snake,
-    bat,
-    wolf,
-    dingo,
-    human,
+    const Kind = enum {
+        snake,
+        bat,
+        wolf,
+        dingo,
+        human,
+    };
 };
 
 pub const ArrayOfStructsPerfTest = struct {
@@ -28,11 +28,11 @@ pub const ArrayOfStructsPerfTest = struct {
             const monster = Monster{
                 .anim = &(animations[i % animations.len]),
                 .kind = switch (i % 5) {
-                    0 => Kind.snake,
-                    1 => Kind.bat,
-                    2 => Kind.wolf,
-                    3 => Kind.dingo,
-                    else => Kind.human,
+                    0 => Monster.Kind.snake,
+                    1 => Monster.Kind.bat,
+                    2 => Monster.Kind.wolf,
+                    3 => Monster.Kind.dingo,
+                    else => Monster.Kind.human,
                 },
             };
 
@@ -57,11 +57,11 @@ pub const ArrayOfStructsPerfTest = struct {
             const some_value = monster.anim.some_value;
             // Simulate some work with the monster
             switch (monster.kind) {
-                Kind.snake => monster.anim.some_value += 1,
-                Kind.bat => monster.anim.some_value += if (some_value > 0) -1 else 1,
-                Kind.wolf => monster.anim.some_value += 1,
-                Kind.dingo => monster.anim.some_value += if (some_value > 0) -1 else 1,
-                Kind.human => monster.anim.some_value += 1,
+                Monster.Kind.snake => monster.anim.some_value += 1,
+                Monster.Kind.bat => monster.anim.some_value += if (some_value > 0) -1 else 1,
+                Monster.Kind.wolf => monster.anim.some_value += 1,
+                Monster.Kind.dingo => monster.anim.some_value += if (some_value > 0) -1 else 1,
+                Monster.Kind.human => monster.anim.some_value += 1,
             }
         }
 

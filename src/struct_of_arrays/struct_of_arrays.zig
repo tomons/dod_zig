@@ -5,14 +5,14 @@ const Animation = @import("common.zig").Animation;
 pub const Monster = struct {
     anim: *Animation,
     kind: Kind,
-};
 
-const Kind = enum {
-    snake,
-    bat,
-    wolf,
-    dingo,
-    human,
+    const Kind = enum {
+        snake,
+        bat,
+        wolf,
+        dingo,
+        human,
+    };
 };
 
 pub const StructOfArraysPerfTest = struct {
@@ -28,11 +28,11 @@ pub const StructOfArraysPerfTest = struct {
             const monster = Monster{
                 .anim = &(animations[i % animations.len]),
                 .kind = switch (i % 5) {
-                    0 => Kind.snake,
-                    1 => Kind.bat,
-                    2 => Kind.wolf,
-                    3 => Kind.dingo,
-                    else => Kind.human,
+                    0 => Monster.Kind.snake,
+                    1 => Monster.Kind.bat,
+                    2 => Monster.Kind.wolf,
+                    3 => Monster.Kind.dingo,
+                    else => Monster.Kind.human,
                 },
             };
 
@@ -47,7 +47,7 @@ pub const StructOfArraysPerfTest = struct {
     pub fn monstersSizeInBytes(self: *Self) usize {
         const animItems = self.monsters.items(.anim);
         const kindItems = self.monsters.items(.kind);
-        return animItems.len * @sizeOf(*Animation) + kindItems.len * @sizeOf(Kind);
+        return animItems.len * @sizeOf(*Animation) + kindItems.len * @sizeOf(Monster.Kind);
     }
 
     pub fn deinit(self: *Self, allocator: std.mem.Allocator) void {
@@ -59,11 +59,11 @@ pub const StructOfArraysPerfTest = struct {
             const some_value = anim.some_value;
             // Simulate some work with the monster
             switch (kind) {
-                Kind.snake => anim.some_value += 1,
-                Kind.bat => anim.some_value += if (some_value > 0) -1 else 1,
-                Kind.wolf => anim.some_value += 1,
-                Kind.dingo => anim.some_value += if (some_value > 0) -1 else 1,
-                Kind.human => anim.some_value += 1,
+                Monster.Kind.snake => anim.some_value += 1,
+                Monster.Kind.bat => anim.some_value += if (some_value > 0) -1 else 1,
+                Monster.Kind.wolf => anim.some_value += 1,
+                Monster.Kind.dingo => anim.some_value += if (some_value > 0) -1 else 1,
+                Monster.Kind.human => anim.some_value += 1,
             }
         }
 
