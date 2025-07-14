@@ -47,6 +47,10 @@ pub const WithHashMapPerfTest = struct {
     pub fn run(self: *Self, _: std.mem.Allocator) !bool {
         // Simulate some work with the monsters
         for (self.monsters.items, 0..) |*monster, index| {
+            if (monster.hp < 1000) {
+                monster.hp += 1;
+            }
+
             var has_item_2 = false;
             const i: u32 = @intCast(index);
             const held_items = self.held_items.get(i);

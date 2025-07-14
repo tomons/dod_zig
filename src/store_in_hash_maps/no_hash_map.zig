@@ -39,6 +39,10 @@ pub const NoHashMapPerfTest = struct {
     pub fn run(self: *Self, _: std.mem.Allocator) !bool {
         // Simulate some work with the monsters
         for (self.monsters.items) |*monster| {
+            if (monster.hp < 1000) {
+                monster.hp += 1;
+            }
+
             var has_item_2 = false;
             for (monster.held_items) |item| {
                 if (item == 1) {
