@@ -1,7 +1,7 @@
 /// "Store sparse data in hash maps" optimization.
 ///
-/// Size of no hash map example approximately: 280000 bytes
-/// Size of with hash map example approximately: 140000 bytes
+/// Size of no hash map example approximately: 280000 bytes plus some overhead
+/// Size of with hash map example approximately: 140000 bytes plus some overhead
 const std = @import("std");
 const zbench = @import("zbench");
 
@@ -20,11 +20,11 @@ pub fn main() !void {
 
     no_hash_map_perf_test = try NoHashMapPerfTest.init(allocator, total_monsters, percentage_held_items);
     defer no_hash_map_perf_test.deinit();
-    try stdout.print("Size of no hash map example approximately: {} bytes\n", .{no_hash_map_perf_test.monstersSizeInBytes()});
+    try stdout.print("Size of no hash map example approximately: {} bytes plus some overhead\n", .{no_hash_map_perf_test.monstersSizeInBytes()});
 
     with_hash_map_perf_test = try WithHashMapPerfTest.init(allocator, total_monsters, percentage_held_items);
     defer with_hash_map_perf_test.deinit();
-    try stdout.print("Size of with hash map example approximately: {} bytes\n", .{with_hash_map_perf_test.monstersSizeInBytes()});
+    try stdout.print("Size of with hash map example approximately: {} bytes plus some overhead\n", .{with_hash_map_perf_test.monstersSizeInBytes()});
 
     var bench = zbench.Benchmark.init(std.heap.page_allocator, .{});
     defer bench.deinit();
