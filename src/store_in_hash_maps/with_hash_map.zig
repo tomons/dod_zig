@@ -56,7 +56,12 @@ pub const WithHashMapPerfTest = struct {
             const held_items = self.held_items.get(i);
 
             if (held_items != null) {
-                has_item_2 = held_items.?[1] > 0;
+                for (held_items.?) |item| {
+                    if (item == 1) {
+                        has_item_2 = true;
+                        break;
+                    }
+                }
             }
 
             if (has_item_2 and monster.hp > 0) {
