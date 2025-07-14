@@ -1,6 +1,6 @@
 ## DOD (Data-Oriented Design) examples in Zig
 
-Inspired by talk "Andrew Kelley - Practical DOD" https://vimeo.com/649009599
+Tried to implement performance tests of examples from talk "Andrew Kelley - Practical DOD" https://vimeo.com/649009599
 
 ### Build
 
