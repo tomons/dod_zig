@@ -21,6 +21,7 @@ pub fn build(b: *std.Build) void {
         "indexes_vs_pointers_dynamic",
         "booleans_out_of_band",
         "struct_of_arrays",
+        "store_in_hash_maps",
     };
 
     for (example_names) |example_name| {
