@@ -12,7 +12,7 @@ pub const NoHashMapPerfTest = struct {
         try monsters.ensureTotalCapacity(total_monsters);
         for (0..total_monsters) |index| {
             const i: u32 = @intCast(index);
-            const has_held_items: bool = i % 100 <= percentageHeldItems;
+            const has_held_items: bool = i % 100 < percentageHeldItems;
             const monster = Monster{
                 .hp = 100 + i,
                 .x = 10 + i,
@@ -22,6 +22,7 @@ pub const NoHashMapPerfTest = struct {
 
             try monsters.append(monster);
         }
+
         return Self{
             .monsters = monsters,
         };

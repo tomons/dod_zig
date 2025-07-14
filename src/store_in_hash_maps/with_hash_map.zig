@@ -13,6 +13,7 @@ pub const WithHashMapPerfTest = struct {
         var monsters = ArrayList(Monster).init(allocator);
         try monsters.ensureTotalCapacity(total_monsters);
         var held_items = AutoHashMap(u32, [4]u32).init(allocator);
+        try held_items.ensureTotalCapacity(total_monsters / 100 * percentageHeldItems);
         for (0..total_monsters) |index| {
             const i: u32 = @intCast(index);
             const monster = Monster{
@@ -23,10 +24,11 @@ pub const WithHashMapPerfTest = struct {
 
             try monsters.append(monster);
 
-            if (i % 100 <= percentageHeldItems) {
+            if (i % 100 < percentageHeldItems) {
                 try held_items.put(i, [4]u32{ 0, 1, 2, 3 });
             }
         }
+
         return Self{
             .monsters = monsters,
             .held_items = held_items,
