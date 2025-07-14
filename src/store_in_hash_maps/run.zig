@@ -1,3 +1,7 @@
+/// "Store sparse data in hash maps" optimization.
+///
+/// Size of no hash map example approximately: 280000 bytes
+/// Size of with hash map example approximately: 140000 bytes
 const std = @import("std");
 const zbench = @import("zbench");
 
