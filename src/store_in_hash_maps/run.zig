@@ -1,7 +1,8 @@
 /// "Store sparse data in hash maps" optimization.
 ///
-/// Size of no hash map example approximately: 280000 bytes plus some overhead
-/// Size of with hash map example approximately: 140000 bytes plus some overhead
+/// For 10_000 monsters with 10% held items:
+/// No hash map example memory allocation: 317.59765625KiB
+/// With hash map example meomry allocation: 193.20703125KiB
 const std = @import("std");
 const zbench = @import("zbench");
 
@@ -20,11 +21,9 @@ pub fn main() !void {
 
     no_hash_map_perf_test = try NoHashMapPerfTest.init(allocator, total_monsters, percentage_held_items);
     defer no_hash_map_perf_test.deinit();
-    try stdout.print("Size of no hash map example approximately: {} bytes plus some overhead\n", .{no_hash_map_perf_test.monstersSizeInBytes()});
 
     with_hash_map_perf_test = try WithHashMapPerfTest.init(allocator, total_monsters, percentage_held_items);
     defer with_hash_map_perf_test.deinit();
-    try stdout.print("Size of with hash map example approximately: {} bytes plus some overhead\n", .{with_hash_map_perf_test.monstersSizeInBytes()});
 
     var bench = zbench.Benchmark.init(std.heap.page_allocator, .{});
     defer bench.deinit();
@@ -34,6 +33,9 @@ pub fn main() !void {
 
     try stdout.writeAll("\n");
     try bench.run(stdout);
+
+    try printMemoryUsageNoHashMap();
+    try printMemoryUsageWithHashMap();
 }
 
 fn benchmarkNoHashMap(allocator: std.mem.Allocator) void {
@@ -50,4 +52,32 @@ fn benchmarkWithHashMap(allocator: std.mem.Allocator) void {
         break :catch_block true;
     };
     if (failed) @panic("test failed");
+}
+
+fn printMemoryUsageNoHashMap() !void {
+    var gpa = std.heap.GeneralPurposeAllocator(.{
+        .enable_memory_limit = true,
+    }){};
+    const allocator = gpa.allocator();
+
+    var temp_test = try NoHashMapPerfTest.init(allocator, total_monsters, percentage_held_items);
+    defer temp_test.deinit();
+
+    std.debug.print("No hash map example memory allocation: {}\n", .{
+        std.fmt.fmtIntSizeBin(gpa.total_requested_bytes),
+    });
+}
+
+fn printMemoryUsageWithHashMap() !void {
+    var gpa = std.heap.GeneralPurposeAllocator(.{
+        .enable_memory_limit = true,
+    }){};
+    const allocator = gpa.allocator();
+
+    var temp_test = try WithHashMapPerfTest.init(allocator, total_monsters, percentage_held_items);
+    defer temp_test.deinit();
+
+    std.debug.print("With hash map example memory allocation: {}\n", .{
+        std.fmt.fmtIntSizeBin(gpa.total_requested_bytes),
+    });
 }

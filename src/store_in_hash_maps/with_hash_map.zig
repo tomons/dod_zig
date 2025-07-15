@@ -35,10 +35,6 @@ pub const WithHashMapPerfTest = struct {
         };
     }
 
-    pub fn monstersSizeInBytes(self: *Self) usize {
-        return self.monsters.items.len * @sizeOf(Monster) + self.held_items.count() * @sizeOf([4]u32) + self.held_items.count() * @sizeOf(u32);
-    }
-
     pub fn deinit(self: *Self) void {
         self.monsters.deinit();
         self.held_items.deinit();
