@@ -2,6 +2,8 @@
 
 Tried to implement performance tests of examples from talk "Andrew Kelley - Practical DOD" https://vimeo.com/649009599
 
+QA part of the talk: https://vimeo.com/handmadecities
+
 ### Build
 
 Run one of the examples:
