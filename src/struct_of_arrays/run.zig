@@ -1,7 +1,8 @@
 /// "Eliminate padding with struct of arrays instead of array of structs" optimization.
 ///
-/// Size of array of structs approximately: 160000 bytes
-/// Size of array struct of arrays approximately: 90000 bytes
+/// For 10_000 monsters with 8 animations:
+/// Array of structs example memory allocation: 162.21875KiB
+/// Struct of arrays example memory allocation: 122.767578125KiB
 const std = @import("std");
 const zbench = @import("zbench");
 
@@ -10,6 +11,7 @@ const StructOfArraysPerfTest = @import("struct_of_arrays.zig").StructOfArraysPer
 const initAnimations = @import("common.zig").initAnimations;
 
 const total_monsters = 10_000;
+const animationsCount = 8;
 var array_of_structs_perf_test: ArrayOfStructsPerfTest = undefined;
 var struct_of_arrays_perf_test: StructOfArraysPerfTest = undefined;
 
@@ -18,19 +20,15 @@ pub fn main() !void {
 
     const allocator = std.heap.page_allocator;
 
-    const animationsCount = 8;
-
     const animations1 = try initAnimations(allocator, animationsCount);
     defer allocator.free(animations1);
     array_of_structs_perf_test = try ArrayOfStructsPerfTest.init(allocator, animations1, total_monsters);
     defer array_of_structs_perf_test.deinit();
-    try stdout.print("Size of array of structs approximately: {} bytes\n", .{array_of_structs_perf_test.monstersSizeInBytes()});
 
     const animations2 = try initAnimations(allocator, animationsCount);
     defer allocator.free(animations2);
     struct_of_arrays_perf_test = try StructOfArraysPerfTest.init(allocator, animations2, total_monsters);
     defer struct_of_arrays_perf_test.deinit(allocator);
-    try stdout.print("Size of array struct of arrays approximately: {} bytes\n", .{struct_of_arrays_perf_test.monstersSizeInBytes()});
 
     var bench = zbench.Benchmark.init(std.heap.page_allocator, .{});
     defer bench.deinit();
@@ -40,6 +38,9 @@ pub fn main() !void {
 
     try stdout.writeAll("\n");
     try bench.run(stdout);
+
+    try printMemoryArrayOfStructs();
+    try printMemoryStructOfArrays();
 }
 
 fn benchmarkArrayOfStructs(allocator: std.mem.Allocator) void {
@@ -56,4 +57,34 @@ fn benchmarkStructOfArrays(allocator: std.mem.Allocator) void {
         break :catch_block true;
     };
     if (failed) @panic("test failed");
+}
+
+fn printMemoryArrayOfStructs() !void {
+    var gpa = std.heap.GeneralPurposeAllocator(.{
+        .enable_memory_limit = true,
+    }){};
+    const allocator = gpa.allocator();
+    const animations = try initAnimations(allocator, animationsCount);
+    defer allocator.free(animations);
+    var temp_test = try ArrayOfStructsPerfTest.init(allocator, animations, total_monsters);
+    defer temp_test.deinit();
+
+    std.debug.print("Array of structs example memory allocation: {}\n", .{
+        std.fmt.fmtIntSizeBin(gpa.total_requested_bytes),
+    });
+}
+
+fn printMemoryStructOfArrays() !void {
+    var gpa = std.heap.GeneralPurposeAllocator(.{
+        .enable_memory_limit = true,
+    }){};
+    const allocator = gpa.allocator();
+    const animations = try initAnimations(allocator, animationsCount);
+    defer allocator.free(animations);
+    var temp_test = try StructOfArraysPerfTest.init(allocator, animations, total_monsters);
+    defer temp_test.deinit(allocator);
+
+    std.debug.print("Struct of arrays example memory allocation: {}\n", .{
+        std.fmt.fmtIntSizeBin(gpa.total_requested_bytes),
+    });
 }

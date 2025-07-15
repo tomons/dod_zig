@@ -44,12 +44,6 @@ pub const StructOfArraysPerfTest = struct {
         };
     }
 
-    pub fn monstersSizeInBytes(self: *Self) usize {
-        const animItems = self.monsters.items(.anim);
-        const kindItems = self.monsters.items(.kind);
-        return animItems.len * @sizeOf(*Animation) + kindItems.len * @sizeOf(Monster.Kind);
-    }
-
     pub fn deinit(self: *Self, allocator: std.mem.Allocator) void {
         self.monsters.deinit(allocator);
     }

@@ -44,10 +44,6 @@ pub const ArrayOfStructsPerfTest = struct {
         };
     }
 
-    pub fn monstersSizeInBytes(self: *Self) usize {
-        return self.monsters.items.len * @sizeOf(Monster);
-    }
-
     pub fn deinit(self: *Self) void {
         self.monsters.deinit();
     }
