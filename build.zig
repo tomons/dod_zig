@@ -22,6 +22,7 @@ pub fn build(b: *std.Build) void {
         "booleans_out_of_band",
         "struct_of_arrays",
         "store_in_hash_maps",
+        "use_encodings",
     };
 
     for (example_names) |example_name| {
