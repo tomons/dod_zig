@@ -1,3 +1,7 @@
+const std = @import("std");
+const ArrayList = std.ArrayList;
+const MultiArrayList = std.MultiArrayList;
+
 pub const Monster = struct {
     tag: Tag,
     common: Common,
@@ -25,4 +29,87 @@ pub const Monster = struct {
         shirt: u32,
         pants: u32,
     };
+};
+
+pub const EncodedPerfTest = struct {
+    const Self = @This();
+    monsters: MultiArrayList(Monster) = undefined,
+    monster_extras: ArrayList(Monster.HumanClothed) = undefined,
+
+    pub fn init(allocator: std.mem.Allocator, total_monsters: u32, percentageBees: u9, percentageClothedHumans: u9) !Self {
+        var monsters: MultiArrayList(Monster) = .{};
+        try monsters.ensureTotalCapacity(allocator, total_monsters);
+
+        const beesTotal = total_monsters * percentageBees / 100; // todo use float and round
+        const humansTotal = total_monsters - beesTotal;
+        const nakedHumansTotal = humansTotal * (100 - percentageClothedHumans) / 100; // todo use float and round;
+
+        var monster_extras = ArrayList(Monster.HumanClothed).init(allocator);
+        try monster_extras.ensureTotalCapacity(nakedHumansTotal);
+
+        for (0..total_monsters) |index| {
+            const i: u32 = @intCast(index);
+            const one_to_hundred: u32 = i % 100;
+            const is_bee: bool = one_to_hundred < percentageBees;
+            const is_clothed_human: bool = !is_bee and ((one_to_hundred - percentageBees) < percentageClothedHumans);
+
+            const monster: Monster = Monster{
+                .tag = if (is_bee)
+                    .bee_red
+                else if (is_clothed_human)
+                    .human_clothed
+                else
+                    .human_naked,
+                .common = Monster.Common{
+                    .x = 10 + i,
+                    .y = 20 + i,
+                    .extra_index = if (is_clothed_human) @intCast(monster_extras.items.len) else 0,
+                },
+            };
+            try monsters.append(allocator, monster);
+
+            if (is_clothed_human) {
+                try monster_extras.append(Monster.HumanClothed{
+                    .hat = 1,
+                    .shoes = 2,
+                    .shirt = 3,
+                    .pants = 4,
+                });
+            }
+        }
+
+        return Self{
+            .monsters = monsters,
+            .monster_extras = monster_extras,
+        };
+    }
+
+    pub fn deinit(self: *Self, allocator: std.mem.Allocator) void {
+        self.monsters.deinit(allocator);
+        self.monster_extras.deinit();
+    }
+
+    pub fn run(self: *Self, _: std.mem.Allocator) !bool {
+        // Simulate some work with the monsters
+        for (self.monsters.items(.tag), self.monsters.items(.common)) |tag, *common| {
+            if (common.x < 1000) {
+                common.x += 1;
+            }
+
+            if (common.y < 1000) {
+                if (tag == .bee_red or tag == .bee_yellow or tag == .bee_black) {
+                    common.y += 2;
+                } else if (tag == .human_clothed or tag == .human_braces_clothed) {
+                    common.y += 1;
+                    // todo read something from the extra
+                    if (tag == .human_braces_clothed) {
+                        common.x -= 1;
+                    }
+                }
+            }
+        }
+
+        const failed = self.monsters.items(.common)[0].x > 100000;
+        return failed;
+    }
 };
