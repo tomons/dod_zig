@@ -66,29 +66,27 @@ pub const SimplePerfTest = struct {
         self.monsters.deinit();
     }
 
-    pub fn run(self: *Self, _: std.mem.Allocator) !bool {
+    pub fn run(self: *Self, _: std.mem.Allocator, max_coordinate: u32) !bool {
         // Simulate some work with the monsters
-        const max_x = 1000;
-        const max_y = 1000;
         for (self.monsters.items) |*monster| {
-            if (monster.x < max_x) {
+            if (monster.x < max_coordinate) {
                 monster.x += 1;
             }
 
             switch (monster.extra) {
                 .bee => {
-                    if (monster.y < max_y) {
+                    if (monster.y < max_coordinate) {
                         monster.y += 2;
                     }
                 },
                 .human => {
-                    if (monster.x < max_x) {
+                    if (monster.x < max_coordinate) {
                         if (monster.extra.human.shoes > 0) {
                             monster.x += 1;
                         }
                     }
 
-                    if (monster.y < max_y) {
+                    if (monster.y < max_coordinate) {
                         monster.y += 1;
                         if (monster.extra.human.has_braces) {
                             monster.y += 1;
@@ -98,7 +96,7 @@ pub const SimplePerfTest = struct {
             }
         }
 
-        const failed = self.monsters.items[0].x > 100000;
+        const failed = self.monsters.items[0].x > max_coordinate;
         return failed;
     }
 };

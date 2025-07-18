@@ -13,6 +13,7 @@ const EncodedMonsterPerfTest = @import("encoded.zig").EncodedPerfTest;
 const total_monsters = 10_000;
 const percentage_bees: u9 = 50;
 const percentage_clothed_humans: u9 = 50; // out of all humans
+const max_coordinate = 10_000;
 var simple_monster_perf_test: SimpleMonsterPerfTest = undefined;
 var oo_monster_perf_test: OOMonsterPerfTest = undefined;
 var encoded_monster_perf_test: EncodedMonsterPerfTest = undefined;
@@ -61,7 +62,7 @@ pub fn main() !void {
 }
 
 fn benchmarkSimpleMonster(allocator: std.mem.Allocator) void {
-    const failed = simple_monster_perf_test.run(allocator) catch |err| catch_block: {
+    const failed = simple_monster_perf_test.run(allocator, max_coordinate) catch |err| catch_block: {
         std.debug.print("Error in benchmarkSimpleMonster: {}\n", .{err});
         break :catch_block true;
     };
@@ -69,7 +70,7 @@ fn benchmarkSimpleMonster(allocator: std.mem.Allocator) void {
 }
 
 fn benchmarkOOMonster(allocator: std.mem.Allocator) void {
-    const failed = oo_monster_perf_test.run(allocator) catch |err| catch_block: {
+    const failed = oo_monster_perf_test.run(allocator, max_coordinate) catch |err| catch_block: {
         std.debug.print("Error in benchmarkOOMonster: {}\n", .{err});
         break :catch_block true;
     };
@@ -77,7 +78,7 @@ fn benchmarkOOMonster(allocator: std.mem.Allocator) void {
 }
 
 fn benchmarkEncodedMonster(allocator: std.mem.Allocator) void {
-    const failed = encoded_monster_perf_test.run(allocator) catch |err| catch_block: {
+    const failed = encoded_monster_perf_test.run(allocator, max_coordinate) catch |err| catch_block: {
         std.debug.print("Error in benchmarkEncodedMonster: {}\n", .{err});
         break :catch_block true;
     };

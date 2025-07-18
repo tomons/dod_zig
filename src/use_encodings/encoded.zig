@@ -89,25 +89,23 @@ pub const EncodedPerfTest = struct {
         self.monster_extras.deinit();
     }
 
-    pub fn run(self: *Self, _: std.mem.Allocator) !bool {
+    pub fn run(self: *Self, _: std.mem.Allocator, max_coordinate: u32) !bool {
         // Simulate some work with the monsters
-        const max_x = 1000;
-        const max_y = 1000;
-
         for (self.monsters.items(.tag), self.monsters.items(.common)) |tag, *common| {
             const is_clothed_human = tag == .human_clothed or tag == .human_braces_clothed;
-            if (common.x < max_x) {
+            const is_bee = tag == .bee_red or tag == .bee_yellow or tag == .bee_black;
+            if (common.x < max_coordinate) {
                 common.x += 1;
                 if (is_clothed_human) {
                     const extra = self.monster_extras.items[common.extra_index];
-                    if (extra.shoes > 0 and common.x < max_x) {
+                    if (extra.shoes > 0 and common.x < max_coordinate) {
                         common.x += 1;
                     }
                 }
             }
 
-            if (common.y < max_y) {
-                if (tag == .bee_red or tag == .bee_yellow or tag == .bee_black) {
+            if (common.y < max_coordinate) {
+                if (is_bee) {
                     common.y += 2;
                 } else if (is_clothed_human) {
                     common.y += 1;
@@ -118,7 +116,7 @@ pub const EncodedPerfTest = struct {
             }
         }
 
-        const failed = self.monsters.items(.common)[0].x > 100000;
+        const failed = self.monsters.items(.common)[0].x > max_coordinate;
         return failed;
     }
 };
