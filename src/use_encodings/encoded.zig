@@ -91,19 +91,28 @@ pub const EncodedPerfTest = struct {
 
     pub fn run(self: *Self, _: std.mem.Allocator) !bool {
         // Simulate some work with the monsters
+        const max_x = 1000;
+        const max_y = 1000;
+
         for (self.monsters.items(.tag), self.monsters.items(.common)) |tag, *common| {
-            if (common.x < 1000) {
+            const is_clothed_human = tag == .human_clothed or tag == .human_braces_clothed;
+            if (common.x < max_x) {
                 common.x += 1;
+                if (is_clothed_human) {
+                    const extra = self.monster_extras.items[common.extra_index];
+                    if (extra.shoes > 0 and common.x < max_x) {
+                        common.x += 1;
+                    }
+                }
             }
 
-            if (common.y < 1000) {
+            if (common.y < max_y) {
                 if (tag == .bee_red or tag == .bee_yellow or tag == .bee_black) {
                     common.y += 2;
-                } else if (tag == .human_clothed or tag == .human_braces_clothed) {
+                } else if (is_clothed_human) {
                     common.y += 1;
-                    // todo read something from the extra
                     if (tag == .human_braces_clothed) {
-                        common.x -= 1;
+                        common.y += 1;
                     }
                 }
             }

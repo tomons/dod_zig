@@ -68,24 +68,31 @@ pub const SimplePerfTest = struct {
 
     pub fn run(self: *Self, _: std.mem.Allocator) !bool {
         // Simulate some work with the monsters
+        const max_x = 1000;
+        const max_y = 1000;
         for (self.monsters.items) |*monster| {
-            if (monster.x < 1000) {
+            if (monster.x < max_x) {
                 monster.x += 1;
             }
 
             switch (monster.extra) {
                 .bee => {
-                    if (monster.y < 1000) {
+                    if (monster.y < max_y) {
                         monster.y += 2;
                     }
                 },
                 .human => {
-                    if (monster.y < 1000) {
-                        monster.y += 1;
+                    if (monster.x < max_x) {
+                        if (monster.extra.human.shoes > 0) {
+                            monster.x += 1;
+                        }
                     }
 
-                    if (monster.extra.human.has_braces) {
-                        monster.x -= 1;
+                    if (monster.y < max_y) {
+                        monster.y += 1;
+                        if (monster.extra.human.has_braces) {
+                            monster.y += 1;
+                        }
                     }
                 },
             }

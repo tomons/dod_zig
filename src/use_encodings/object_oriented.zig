@@ -76,23 +76,28 @@ pub const ObjectOrientedPerfTest = struct {
 
     pub fn run(self: *Self, _: std.mem.Allocator) !bool {
         // Simulate some work with the monsters
+        const max_x = 1000;
+        const max_y = 1000;
         for (self.bees.items) |*bee| {
-            if (bee.base.x < 1000) {
+            if (bee.base.x < max_x) {
                 bee.base.x += 1;
             }
-            if (bee.base.y < 1000) {
+            if (bee.base.y < max_y) {
                 bee.base.y += 2;
             }
         }
         for (self.humans.items) |*human| {
-            if (human.base.x < 1000) {
+            if (human.base.x < max_x) {
                 human.base.x += 1;
+                if (human.shoes > 0) {
+                    human.base.x += 1;
+                }
             }
-            if (human.base.y < 1000) {
+            if (human.base.y < max_y) {
                 human.base.y += 1;
-            }
-            if (human.has_braces) {
-                human.base.x -= 1;
+                if (human.has_braces) {
+                    human.base.y += 1;
+                }
             }
         }
 
