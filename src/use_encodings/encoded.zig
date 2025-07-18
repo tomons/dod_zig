@@ -36,22 +36,24 @@ pub const EncodedPerfTest = struct {
     monsters: MultiArrayList(Monster) = undefined,
     monster_extras: ArrayList(Monster.HumanClothed) = undefined,
 
-    pub fn init(allocator: std.mem.Allocator, total_monsters: u32, percentageBees: u9, percentageClothedHumans: u9) !Self {
+    pub fn init(allocator: std.mem.Allocator, total_monsters: u32, percentage_bees: u9, percentage_clothed_humans: u9) !Self {
         var monsters: MultiArrayList(Monster) = .{};
         try monsters.ensureTotalCapacity(allocator, total_monsters);
 
-        const beesTotal = total_monsters * percentageBees / 100; // todo use float and round
-        const humansTotal = total_monsters - beesTotal;
-        const nakedHumansTotal = humansTotal * (100 - percentageClothedHumans) / 100; // todo use float and round;
+        const bees_total_float: f32 = @as(f32, @floatFromInt(total_monsters * percentage_bees)) / 100.0;
+        const bees_total: u32 = @intFromFloat(@round(bees_total_float));
+        const humans_total = total_monsters - bees_total;
+        const naked_humans_total_float: f32 = @as(f32, @floatFromInt(humans_total * (100 - percentage_clothed_humans))) / 100.0;
+        const naked_humans_total: u32 = @intFromFloat(@round(naked_humans_total_float));
 
         var monster_extras = ArrayList(Monster.HumanClothed).init(allocator);
-        try monster_extras.ensureTotalCapacity(nakedHumansTotal);
+        try monster_extras.ensureTotalCapacity(naked_humans_total);
 
         for (0..total_monsters) |index| {
             const i: u32 = @intCast(index);
             const one_to_hundred: u32 = i % 100;
-            const is_bee: bool = one_to_hundred < percentageBees;
-            const is_clothed_human: bool = !is_bee and ((one_to_hundred - percentageBees) < percentageClothedHumans);
+            const is_bee: bool = one_to_hundred < percentage_bees;
+            const is_clothed_human: bool = !is_bee and ((one_to_hundred - percentage_bees) < percentage_clothed_humans);
 
             const monster: Monster = Monster{
                 .tag = if (is_bee)

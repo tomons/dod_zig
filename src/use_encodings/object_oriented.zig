@@ -32,17 +32,22 @@ pub const ObjectOrientedPerfTest = struct {
     bees: ArrayList(Monster.Bee) = undefined,
     humans: ArrayList(Monster.Human) = undefined,
 
-    pub fn init(allocator: std.mem.Allocator, total_monsters: u32, percentageBees: u9, percentageClothedHumans: u9) !Self {
+    pub fn init(allocator: std.mem.Allocator, total_monsters: u32, percentage_bees: u9, percentageClothedHumans: u9) !Self {
+        const bees_total_float: f32 = @as(f32, @floatFromInt(total_monsters * percentage_bees)) / 100.0;
+        const bees_total: u32 = @intFromFloat(@round(bees_total_float));
+        const humans_total = total_monsters - bees_total;
+
         var bees = ArrayList(Monster.Bee).init(allocator);
-        try bees.ensureTotalCapacity(total_monsters * percentageBees / 100);
+
+        try bees.ensureTotalCapacity(bees_total);
         var humans = ArrayList(Monster.Human).init(allocator);
-        try humans.ensureTotalCapacity(total_monsters * (100 - percentageBees) / 100);
+        try humans.ensureTotalCapacity(humans_total);
 
         for (0..total_monsters) |index| {
             const i: u32 = @intCast(index);
             const one_to_hundred: u32 = i % 100;
-            const is_bee: bool = one_to_hundred < percentageBees;
-            const is_clothed_human: bool = !is_bee and ((one_to_hundred - percentageBees) < percentageClothedHumans);
+            const is_bee: bool = one_to_hundred < percentage_bees;
+            const is_clothed_human: bool = !is_bee and ((one_to_hundred - percentage_bees) < percentageClothedHumans);
 
             if (is_bee) {
                 const bee: Monster.Bee = Monster.Bee{

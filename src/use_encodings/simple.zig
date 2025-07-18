@@ -29,14 +29,14 @@ pub const SimplePerfTest = struct {
     const Self = @This();
     monsters: ArrayList(Monster) = undefined,
 
-    pub fn init(allocator: std.mem.Allocator, total_monsters: u32, percentageBees: u9, percentageClothedHumans: u9) !Self {
+    pub fn init(allocator: std.mem.Allocator, total_monsters: u32, percentage_bees: u9, percentage_clothed_humans: u9) !Self {
         var monsters = ArrayList(Monster).init(allocator);
         try monsters.ensureTotalCapacity(total_monsters);
         for (0..total_monsters) |index| {
             const i: u32 = @intCast(index);
             const one_to_hundred: u32 = i % 100;
-            const is_bee: bool = one_to_hundred < percentageBees;
-            const is_clothed_human: bool = !is_bee and ((one_to_hundred - percentageBees) < percentageClothedHumans);
+            const is_bee: bool = one_to_hundred < percentage_bees;
+            const is_clothed_human: bool = !is_bee and ((one_to_hundred - percentage_bees) < percentage_clothed_humans);
 
             const human_or_bee: Monster.HumanOrBee = human_or_bee: {
                 if (is_bee) {

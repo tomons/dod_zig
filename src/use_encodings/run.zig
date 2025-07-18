@@ -11,9 +11,9 @@ const EncodedMonster = @import("encoded.zig").Monster;
 const EncodedMonsterPerfTest = @import("encoded.zig").EncodedPerfTest;
 
 const total_monsters = 10_000;
-const percentage_bees: u9 = 50;
+const percentage_bees: u9 = 50; // out of all monsters
 const percentage_clothed_humans: u9 = 50; // out of all humans
-const max_coordinate = 10_000;
+const max_coordinate = 100_000;
 var simple_monster_perf_test: SimpleMonsterPerfTest = undefined;
 var oo_monster_perf_test: OOMonsterPerfTest = undefined;
 var encoded_monster_perf_test: EncodedMonsterPerfTest = undefined;
