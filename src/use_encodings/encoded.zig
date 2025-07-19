@@ -63,8 +63,8 @@ pub const EncodedPerfTest = struct {
                 else
                     .human_naked,
                 .common = Monster.Common{
-                    .x = 10 + i,
-                    .y = 20 + i,
+                    .x = 10,
+                    .y = 20,
                     .extra_index = if (is_clothed_human) @intCast(monster_extras.items.len) else 0,
                 },
             };
@@ -96,26 +96,25 @@ pub const EncodedPerfTest = struct {
         for (self.monsters.items(.tag), self.monsters.items(.common)) |tag, *common| {
             const is_clothed_human = tag == .human_clothed or tag == .human_braces_clothed;
             const is_bee = tag == .bee_red or tag == .bee_yellow or tag == .bee_black;
-            if (common.x < max_coordinate) {
-                common.x += 1;
-                if (is_clothed_human) {
-                    const extra = self.monster_extras.items[common.extra_index];
-                    if (extra.shoes > 0 and common.x < max_coordinate) {
-                        common.x += 1;
-                    }
+            common.x += 1;
+            if (is_clothed_human) {
+                const extra = self.monster_extras.items[common.extra_index];
+                if (extra.shoes > 0) {
+                    common.x += 1;
                 }
             }
 
-            if (common.y < max_coordinate) {
-                if (is_bee) {
-                    common.y += 2;
-                } else if (is_clothed_human) {
+            if (is_bee) {
+                common.y += 2;
+            } else if (is_clothed_human) {
+                common.y += 1;
+                if (tag == .human_braces_clothed) {
                     common.y += 1;
-                    if (tag == .human_braces_clothed) {
-                        common.y += 1;
-                    }
                 }
             }
+
+            if (common.x > max_coordinate) common.x = 1;
+            if (common.y > max_coordinate) common.y = 1;
         }
 
         const failed = self.monsters.items(.common)[0].x > max_coordinate;
