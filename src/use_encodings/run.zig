@@ -59,6 +59,10 @@ pub fn main() !void {
 
     try stdout.writeAll("\n");
     try bench.run(stdout);
+
+    try printMemoryUsageSimpleMonster();
+    try printMemoryUsageOOMonster();
+    try printMemoryUsageEncodedMonster();
 }
 
 fn benchmarkSimpleMonster(allocator: std.mem.Allocator) void {
@@ -83,4 +87,46 @@ fn benchmarkEncodedMonster(allocator: std.mem.Allocator) void {
         break :catch_block true;
     };
     if (failed) @panic("test failed");
+}
+
+fn printMemoryUsageSimpleMonster() !void {
+    var gpa = std.heap.GeneralPurposeAllocator(.{
+        .enable_memory_limit = true,
+    }){};
+    const allocator = gpa.allocator();
+
+    var temp_test = try SimpleMonsterPerfTest.init(allocator, total_monsters, percentage_bees, percentage_clothed_humans);
+    defer temp_test.deinit();
+
+    std.debug.print("SimpleMonster example memory allocation: {}\n", .{
+        std.fmt.fmtIntSizeBin(gpa.total_requested_bytes),
+    });
+}
+
+fn printMemoryUsageOOMonster() !void {
+    var gpa = std.heap.GeneralPurposeAllocator(.{
+        .enable_memory_limit = true,
+    }){};
+    const allocator = gpa.allocator();
+
+    var temp_test = try OOMonsterPerfTest.init(allocator, total_monsters, percentage_bees, percentage_clothed_humans);
+    defer temp_test.deinit();
+
+    std.debug.print("OOMonster example memory allocation: {}\n", .{
+        std.fmt.fmtIntSizeBin(gpa.total_requested_bytes),
+    });
+}
+
+fn printMemoryUsageEncodedMonster() !void {
+    var gpa = std.heap.GeneralPurposeAllocator(.{
+        .enable_memory_limit = true,
+    }){};
+    const allocator = gpa.allocator();
+
+    var temp_test = try EncodedMonsterPerfTest.init(allocator, total_monsters, percentage_bees, percentage_clothed_humans);
+    defer temp_test.deinit(allocator);
+
+    std.debug.print("EncodedMonster example memory allocation: {}\n", .{
+        std.fmt.fmtIntSizeBin(gpa.total_requested_bytes),
+    });
 }
