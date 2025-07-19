@@ -1,12 +1,13 @@
-## DOD (Data-Oriented Design) examples in Zig
+## Data-Oriented Design (DOD) Examples in Zig
 
-Tried to implement performance tests of examples from talk "Andrew Kelley - Practical DOD" https://vimeo.com/649009599
+This repository contains performance tests based on examples from the
+talk ["Andrew Kelley - Practical DOD"](https://vimeo.com/649009599). For the Q&A portion of the talk,
+see: ["Practical DOD - Q&A"](https://vimeo.com/649016743).
 
-Examples are hypothetical to get the feeling of possible performance optimizations by applying DOD principles in Zig.
+The examples are hypothetical with (my) dubious simplified logic aiming to demonstrate potential performance
+optimizations using DOD principles in Zig.
 
-QA part of the talk: https://vimeo.com/handmadecities
-
-### Build and run examples
+### Building and Running Examples
 
 Use indexes instead of pointers:
 
