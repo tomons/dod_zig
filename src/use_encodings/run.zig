@@ -1,3 +1,35 @@
+/// "Use "encodings" instead of OOP/polymorphism" optimization.
+///
+/// For 50% bees and 50% clothed humans:
+/// Size of SimpleMonster: 32 bytes
+/// Size of OOMonster.Bee: 16 bytes
+/// Size of OOMonster.Human: 32 bytes
+/// Average Size of OOMonster: 24 bytes
+/// Size of encoded bee monster in multi array list: 13 bytes
+/// Size of encoded naked human monster in multi array list: 13 bytes
+/// Size of encoded clothed human monster in array list: 29 bytes
+/// Average size of encoded monster with use of multi array list and array list: 17 bytes
+///
+/// For 10_000_000 monsters with 50% bees and 50% clothed humans:
+/// benchmark              runs     total time     time/run (avg ± σ)     (min ... max)                p75        p99        p995
+/// -----------------------------------------------------------------------------------------------------------------------------
+/// Simple monster         157      1.976s         12.589ms ± 49.999us    (12.514ms ... 12.746ms)      12.607ms   12.738ms   12.746ms
+/// OO monster             85       1.995s         23.481ms ± 103.102us   (23.342ms ... 23.946ms)      23.513ms   23.946ms   23.946ms
+/// Encoded monster        181      1.999s         11.045ms ± 84.941us    (10.964ms ... 11.941ms)      11.058ms   11.292ms   11.941ms
+/// SimpleMonster example memory allocation: 349.4597473144531MiB
+/// OOMonster example memory allocation: 259.44361877441406MiB
+/// EncodedMonster example memory allocation: 261.94763374328613MiB
+///
+/// Reducing the number of monsters to 10_000 optimizations actually slows down the benchmarks:
+/// benchmark              runs     total time     time/run (avg ± σ)     (min ... max)                p75        p99        p995
+/// -----------------------------------------------------------------------------------------------------------------------------
+/// Simple monster         100000   945.601ms      9.456us ± 10.235us     (7.123us ... 3.222ms)        9.499us    15.435us   16.622us
+/// OO monster             100000   1.353s         13.539us ± 1.148us     (11.872us ... 68.863us)      14.247us   20.184us   21.371us
+/// Encoded monster        100000   1.128s         11.283us ± 1.118us     (9.498us ... 39.181us)       11.873us   17.81us    18.997us
+/// SimpleMonster example memory allocation: 362.96875KiB
+/// OOMonster example memory allocation: 269.171875KiB
+/// EncodedMonster example memory allocation: 271.7666015625KiB
+///
 const std = @import("std");
 const zbench = @import("zbench");
 
