@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-run-perf-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Zig
+        uses: goto-bus-stop/setup-zig@v2
+        with:
+          version: 0.15.2
+
+      - name: Show Zig version
+        run: zig version
+
+      - name: Build all examples
+        run: zig build examples -Doptimize=ReleaseFast
+
+      - name: Run indexes_vs_pointers perf test
+        run: zig build run_indexes_vs_pointers -Doptimize=ReleaseFast
+
+      - name: Run indexes_vs_pointers_dynamic perf test
+        run: zig build run_indexes_vs_pointers_dynamic -Doptimize=ReleaseFast
+
+      - name: Run booleans_out_of_band perf test
+        run: zig build run_booleans_out_of_band -Doptimize=ReleaseFast
+
+      - name: Run struct_of_arrays perf test
+        run: zig build run_struct_of_arrays -Doptimize=ReleaseFast
+
+      - name: Run store_in_hash_maps perf test
+        run: zig build run_store_in_hash_maps -Doptimize=ReleaseFast
+
+      - name: Run use_encodings perf test
+        run: zig build run_use_encodings -Doptimize=ReleaseFast

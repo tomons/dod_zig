@@ -1,3 +1,5 @@
+[![CI](https://github.com/tomons/dod_zig/actions/workflows/ci.yml/badge.svg)](https://github.com/tomons/dod_zig/actions/workflows/ci.yml)
+
 ## Data-Oriented Design (DOD) Examples in Zig
 
 This repository contains performance tests based on examples from the
