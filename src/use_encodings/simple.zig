@@ -28,10 +28,11 @@ pub const Monster = struct {
 pub const SimplePerfTest = struct {
     const Self = @This();
     monsters: ArrayList(Monster) = undefined,
+    allocator: std.mem.Allocator = undefined,
 
     pub fn init(allocator: std.mem.Allocator, total_monsters: u32, percentage_bees: u9, percentage_clothed_humans: u9) !Self {
-        var monsters = ArrayList(Monster).init(allocator);
-        try monsters.ensureTotalCapacity(total_monsters);
+        var monsters: ArrayList(Monster) = .empty;
+        try monsters.ensureTotalCapacity(allocator, total_monsters);
         for (0..total_monsters) |index| {
             const i: u32 = @intCast(index);
             const one_to_hundred: u32 = i % 100;
@@ -54,16 +55,17 @@ pub const SimplePerfTest = struct {
                 .extra = human_or_bee,
             };
 
-            try monsters.append(monster);
+            try monsters.append(allocator, monster);
         }
 
         return Self{
             .monsters = monsters,
+            .allocator = allocator,
         };
     }
 
     pub fn deinit(self: *Self) void {
-        self.monsters.deinit();
+        self.monsters.deinit(self.allocator);
     }
 
     pub fn run(self: *Self, _: std.mem.Allocator, max_coordinate: u32) !bool {

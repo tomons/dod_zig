@@ -46,8 +46,8 @@ pub const EncodedPerfTest = struct {
         const naked_humans_total_float: f32 = @as(f32, @floatFromInt(humans_total * (100 - percentage_clothed_humans))) / 100.0;
         const naked_humans_total: u32 = @intFromFloat(@round(naked_humans_total_float));
 
-        var monster_extras = ArrayList(Monster.HumanClothed).init(allocator);
-        try monster_extras.ensureTotalCapacity(naked_humans_total);
+        var monster_extras: ArrayList(Monster.HumanClothed) = .empty;
+        try monster_extras.ensureTotalCapacity(allocator, naked_humans_total);
 
         for (0..total_monsters) |index| {
             const i: u32 = @intCast(index);
@@ -71,7 +71,7 @@ pub const EncodedPerfTest = struct {
             try monsters.append(allocator, monster);
 
             if (is_clothed_human) {
-                try monster_extras.append(Monster.HumanClothed{
+                try monster_extras.append(allocator, Monster.HumanClothed{
                     .hat = 1,
                     .shoes = 2,
                     .shirt = 3,
@@ -88,7 +88,7 @@ pub const EncodedPerfTest = struct {
 
     pub fn deinit(self: *Self, allocator: std.mem.Allocator) void {
         self.monsters.deinit(allocator);
-        self.monster_extras.deinit();
+        self.monster_extras.deinit(allocator);
     }
 
     pub fn run(self: *Self, _: std.mem.Allocator, max_coordinate: u32) !bool {

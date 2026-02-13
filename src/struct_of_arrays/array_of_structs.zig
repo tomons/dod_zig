@@ -19,10 +19,11 @@ pub const ArrayOfStructsPerfTest = struct {
     const Self = @This();
     monsters: ArrayList(Monster) = undefined,
     animations: []Animation = undefined,
+    allocator: std.mem.Allocator = undefined,
 
     pub fn init(allocator: std.mem.Allocator, animations: []Animation, total_monsters: u32) !Self {
-        var monsters = ArrayList(Monster).init(allocator);
-        try monsters.ensureTotalCapacity(total_monsters);
+        var monsters: ArrayList(Monster) = .empty;
+        try monsters.ensureTotalCapacity(allocator, total_monsters);
         for (0..total_monsters) |index| {
             const i: u32 = @intCast(index);
             const monster = Monster{
@@ -36,16 +37,17 @@ pub const ArrayOfStructsPerfTest = struct {
                 },
             };
 
-            try monsters.append(monster);
+            try monsters.append(allocator, monster);
         }
         return Self{
             .monsters = monsters,
             .animations = animations,
+            .allocator = allocator,
         };
     }
 
     pub fn deinit(self: *Self) void {
-        self.monsters.deinit();
+        self.monsters.deinit(self.allocator);
     }
 
     pub fn run(self: *Self, _: std.mem.Allocator) !bool {

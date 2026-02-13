@@ -31,17 +31,18 @@ pub const ObjectOrientedPerfTest = struct {
     const Self = @This();
     bees: ArrayList(Monster.Bee) = undefined,
     humans: ArrayList(Monster.Human) = undefined,
+    allocator: std.mem.Allocator = undefined,
 
     pub fn init(allocator: std.mem.Allocator, total_monsters: u32, percentage_bees: u9, percentageClothedHumans: u9) !Self {
         const bees_total_float: f32 = @as(f32, @floatFromInt(total_monsters * percentage_bees)) / 100.0;
         const bees_total: u32 = @intFromFloat(@round(bees_total_float));
         const humans_total = total_monsters - bees_total;
 
-        var bees = ArrayList(Monster.Bee).init(allocator);
+        var bees: ArrayList(Monster.Bee) = .empty;
 
-        try bees.ensureTotalCapacity(bees_total);
-        var humans = ArrayList(Monster.Human).init(allocator);
-        try humans.ensureTotalCapacity(humans_total);
+        try bees.ensureTotalCapacity(allocator, bees_total);
+        var humans: ArrayList(Monster.Human) = .empty;
+        try humans.ensureTotalCapacity(allocator, humans_total);
 
         for (0..total_monsters) |index| {
             const i: u32 = @intCast(index);
@@ -54,7 +55,7 @@ pub const ObjectOrientedPerfTest = struct {
                     .base = Monster{ .tag = .bee, .x = 10 + i, .y = 20 + i },
                     .color = .red,
                 };
-                try bees.append(bee);
+                try bees.append(allocator, bee);
             } else {
                 const human: Monster.Human = Monster.Human{
                     .base = Monster{ .tag = .human, .x = 10 + i, .y = 20 + i },
@@ -64,19 +65,20 @@ pub const ObjectOrientedPerfTest = struct {
                     .shirt = if (is_clothed_human) 3 else 0,
                     .shoes = if (is_clothed_human) 4 else 0,
                 };
-                try humans.append(human);
+                try humans.append(allocator, human);
             }
         }
 
         return Self{
             .bees = bees,
             .humans = humans,
+            .allocator = allocator,
         };
     }
 
     pub fn deinit(self: *Self) void {
-        self.bees.deinit();
-        self.humans.deinit();
+        self.bees.deinit(self.allocator);
+        self.humans.deinit(self.allocator);
     }
 
     pub fn run(self: *Self, _: std.mem.Allocator, max_coordinate: u32) !bool {

@@ -51,7 +51,9 @@ var oo_monster_perf_test: OOMonsterPerfTest = undefined;
 var encoded_monster_perf_test: EncodedMonsterPerfTest = undefined;
 
 pub fn main() !void {
-    const stdout = std.io.getStdOut().writer();
+    var stdout_buffer: [4096]u8 = undefined;
+    var stdout_writer = std.fs.File.stdout().writer(&stdout_buffer);
+    const stdout = &stdout_writer.interface;
     try stdout.print("Size of SimpleMonster: {} bytes\n", .{@sizeOf(SimpleMonster)});
     const ooBeeSize: u32 = @sizeOf(OOMonster.Bee);
     const ooHumanSize: u32 = @sizeOf(OOMonster.Human);
@@ -91,6 +93,7 @@ pub fn main() !void {
 
     try stdout.writeAll("\n");
     try bench.run(stdout);
+    try stdout.flush();
 
     try printMemoryUsageSimpleMonster();
     try printMemoryUsageOOMonster();
@@ -130,8 +133,8 @@ fn printMemoryUsageSimpleMonster() !void {
     var temp_test = try SimpleMonsterPerfTest.init(allocator, total_monsters, percentage_bees, percentage_clothed_humans);
     defer temp_test.deinit();
 
-    std.debug.print("SimpleMonster example memory allocation: {}\n", .{
-        std.fmt.fmtIntSizeBin(gpa.total_requested_bytes),
+    std.debug.print("SimpleMonster example memory allocation: {d} bytes\n", .{
+        gpa.total_requested_bytes,
     });
 }
 
@@ -144,8 +147,8 @@ fn printMemoryUsageOOMonster() !void {
     var temp_test = try OOMonsterPerfTest.init(allocator, total_monsters, percentage_bees, percentage_clothed_humans);
     defer temp_test.deinit();
 
-    std.debug.print("OOMonster example memory allocation: {}\n", .{
-        std.fmt.fmtIntSizeBin(gpa.total_requested_bytes),
+    std.debug.print("OOMonster example memory allocation: {d} bytes\n", .{
+        gpa.total_requested_bytes,
     });
 }
 
@@ -158,7 +161,7 @@ fn printMemoryUsageEncodedMonster() !void {
     var temp_test = try EncodedMonsterPerfTest.init(allocator, total_monsters, percentage_bees, percentage_clothed_humans);
     defer temp_test.deinit(allocator);
 
-    std.debug.print("EncodedMonster example memory allocation: {}\n", .{
-        std.fmt.fmtIntSizeBin(gpa.total_requested_bytes),
+    std.debug.print("EncodedMonster example memory allocation: {d} bytes\n", .{
+        gpa.total_requested_bytes,
     });
 }

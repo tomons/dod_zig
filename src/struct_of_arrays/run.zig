@@ -16,7 +16,9 @@ var array_of_structs_perf_test: ArrayOfStructsPerfTest = undefined;
 var struct_of_arrays_perf_test: StructOfArraysPerfTest = undefined;
 
 pub fn main() !void {
-    const stdout = std.io.getStdOut().writer();
+    var stdout_buffer: [4096]u8 = undefined;
+    var stdout_writer = std.fs.File.stdout().writer(&stdout_buffer);
+    const stdout = &stdout_writer.interface;
 
     const allocator = std.heap.page_allocator;
 
@@ -38,6 +40,7 @@ pub fn main() !void {
 
     try stdout.writeAll("\n");
     try bench.run(stdout);
+    try stdout.flush();
 
     try printMemoryArrayOfStructs();
     try printMemoryStructOfArrays();
@@ -69,8 +72,8 @@ fn printMemoryArrayOfStructs() !void {
     var temp_test = try ArrayOfStructsPerfTest.init(allocator, animations, total_monsters);
     defer temp_test.deinit();
 
-    std.debug.print("Array of structs example memory allocation: {}\n", .{
-        std.fmt.fmtIntSizeBin(gpa.total_requested_bytes),
+    std.debug.print("Array of structs example memory allocation: {d} bytes\n", .{
+        gpa.total_requested_bytes,
     });
 }
 
@@ -84,7 +87,7 @@ fn printMemoryStructOfArrays() !void {
     var temp_test = try StructOfArraysPerfTest.init(allocator, animations, total_monsters);
     defer temp_test.deinit(allocator);
 
-    std.debug.print("Struct of arrays example memory allocation: {}\n", .{
-        std.fmt.fmtIntSizeBin(gpa.total_requested_bytes),
+    std.debug.print("Struct of arrays example memory allocation: {d} bytes\n", .{
+        gpa.total_requested_bytes,
     });
 }

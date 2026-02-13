@@ -6,10 +6,11 @@ pub const Monster = struct { hp: u32, x: u32, y: u32, held_items: [4]u32 };
 pub const NoHashMapPerfTest = struct {
     const Self = @This();
     monsters: ArrayList(Monster) = undefined,
+    allocator: std.mem.Allocator = undefined,
 
     pub fn init(allocator: std.mem.Allocator, total_monsters: u32, percentageHeldItems: u9) !Self {
-        var monsters = ArrayList(Monster).init(allocator);
-        try monsters.ensureTotalCapacity(total_monsters);
+        var monsters: ArrayList(Monster) = .empty;
+        try monsters.ensureTotalCapacity(allocator, total_monsters);
         for (0..total_monsters) |index| {
             const i: u32 = @intCast(index);
             const has_held_items: bool = i % 100 < percentageHeldItems;
@@ -20,16 +21,17 @@ pub const NoHashMapPerfTest = struct {
                 .held_items = if (has_held_items) [4]u32{ 0, 1, 2, 3 } else [4]u32{ 0, 0, 0, 0 },
             };
 
-            try monsters.append(monster);
+            try monsters.append(allocator, monster);
         }
 
         return Self{
             .monsters = monsters,
+            .allocator = allocator,
         };
     }
 
     pub fn deinit(self: *Self) void {
-        self.monsters.deinit();
+        self.monsters.deinit(self.allocator);
     }
 
     pub fn run(self: *Self, _: std.mem.Allocator) !bool {

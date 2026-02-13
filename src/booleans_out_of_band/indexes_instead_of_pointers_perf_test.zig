@@ -15,10 +15,11 @@ pub const IndexesInsteadOfPointersPerfTest = struct {
     dead_monsters: ArrayList(Monster),
     animations: []Animation = undefined,
     max_dead_monsters: u32 = undefined,
+    allocator: std.mem.Allocator = undefined,
 
     pub fn init(allocator: std.mem.Allocator, animations: []Animation, total_monsters: u32, max_dead_monsters: u32) !Self {
-        var alive_monsters = ArrayList(Monster).init(allocator);
-        try alive_monsters.ensureTotalCapacity(total_monsters);
+        var alive_monsters: ArrayList(Monster) = .empty;
+        try alive_monsters.ensureTotalCapacity(allocator, total_monsters);
         for (0..total_monsters) |index| {
             const i: u32 = @intCast(index);
             const len: u32 = @intCast(animations.len);
@@ -29,24 +30,25 @@ pub const IndexesInsteadOfPointersPerfTest = struct {
                 .y = 10 + i,
             };
 
-            try alive_monsters.append(monster);
+            try alive_monsters.append(allocator, monster);
         }
         return Self{
             .alive_monsters = alive_monsters,
-            .dead_monsters = ArrayList(Monster).init(allocator),
+            .dead_monsters = .empty,
             .animations = animations,
             .max_dead_monsters = max_dead_monsters,
+            .allocator = allocator,
         };
     }
 
     pub fn deinit(self: *Self) void {
-        self.alive_monsters.deinit();
-        self.dead_monsters.deinit();
+        self.alive_monsters.deinit(self.allocator);
+        self.dead_monsters.deinit(self.allocator);
     }
 
     pub fn run(self: *Self, allocator: std.mem.Allocator) !bool {
-        var monsters_to_die_indexes: ArrayList(u32) = ArrayList(u32).init(allocator);
-        defer monsters_to_die_indexes.deinit();
+        var monsters_to_die_indexes: ArrayList(u32) = .empty;
+        defer monsters_to_die_indexes.deinit(allocator);
         for (self.alive_monsters.items, 0..) |*monster, index| {
             // Simulate some work with the monster
             const anim = self.animations[monster.anim_index];
@@ -63,8 +65,8 @@ pub const IndexesInsteadOfPointersPerfTest = struct {
             }
 
             if (monster.hp == 0) {
-                try monsters_to_die_indexes.append(i);
-                try self.dead_monsters.append(monster.*);
+                try monsters_to_die_indexes.append(allocator, i);
+                try self.dead_monsters.append(allocator, monster.*);
             }
         }
 

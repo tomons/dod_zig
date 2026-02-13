@@ -15,7 +15,9 @@ var no_hash_map_perf_test: NoHashMapPerfTest = undefined;
 var with_hash_map_perf_test: WithHashMapPerfTest = undefined;
 
 pub fn main() !void {
-    const stdout = std.io.getStdOut().writer();
+    var stdout_buffer: [4096]u8 = undefined;
+    var stdout_writer = std.fs.File.stdout().writer(&stdout_buffer);
+    const stdout = &stdout_writer.interface;
 
     const allocator = std.heap.page_allocator;
 
@@ -33,6 +35,7 @@ pub fn main() !void {
 
     try stdout.writeAll("\n");
     try bench.run(stdout);
+    try stdout.flush();
 
     try printMemoryUsageNoHashMap();
     try printMemoryUsageWithHashMap();
@@ -63,8 +66,8 @@ fn printMemoryUsageNoHashMap() !void {
     var temp_test = try NoHashMapPerfTest.init(allocator, total_monsters, percentage_held_items);
     defer temp_test.deinit();
 
-    std.debug.print("No hash map example memory allocation: {}\n", .{
-        std.fmt.fmtIntSizeBin(gpa.total_requested_bytes),
+    std.debug.print("No hash map example memory allocation: {d} bytes\n", .{
+        gpa.total_requested_bytes,
     });
 }
 
@@ -77,7 +80,7 @@ fn printMemoryUsageWithHashMap() !void {
     var temp_test = try WithHashMapPerfTest.init(allocator, total_monsters, percentage_held_items);
     defer temp_test.deinit();
 
-    std.debug.print("With hash map example memory allocation: {}\n", .{
-        std.fmt.fmtIntSizeBin(gpa.total_requested_bytes),
+    std.debug.print("With hash map example memory allocation: {d} bytes\n", .{
+        gpa.total_requested_bytes,
     });
 }

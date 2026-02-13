@@ -25,7 +25,9 @@ var without_bool_perf_test: WithoutBoolPerfTest = undefined;
 var indexes_instead_of_pointers_perf_test: IndexesInsteadOfPointersPerfTest = undefined;
 
 pub fn main() !void {
-    const stdout = std.io.getStdOut().writer();
+    var stdout_buffer: [4096]u8 = undefined;
+    var stdout_writer = std.fs.File.stdout().writer(&stdout_buffer);
+    const stdout = &stdout_writer.interface;
     try stdout.print("Size of WithBoolMonster: {} bytes\n", .{@sizeOf(WithBoolMonster)});
     try stdout.print("Size of WithoutBoolMonster: {} bytes\n", .{@sizeOf(WithoutBoolMonster)});
     try stdout.print("Size of IndexesInsteadOfPointersMonster: {} bytes\n", .{@sizeOf(IndexesInsteadOfPointersMonster)});
@@ -53,6 +55,7 @@ pub fn main() !void {
 
     try stdout.writeAll("\n");
     try bench.run(stdout);
+    try stdout.flush();
 }
 
 fn benchmarkWithBool(allocator: std.mem.Allocator) void {

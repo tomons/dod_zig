@@ -7,7 +7,7 @@ see: ["Practical DOD - Q&A"](https://vimeo.com/649016743).
 The examples are hypothetical with (my) dubious simplified logic aiming to demonstrate potential performance
 optimizations using DOD principles in Zig.
 
-Used zig version: 0.14.1
+Used zig version: 0.15.2
 
 ### Building and Running Examples
 

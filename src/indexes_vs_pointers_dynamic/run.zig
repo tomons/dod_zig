@@ -69,7 +69,9 @@ fn deinitStructOfIndexes(allocator: std.mem.Allocator) void {
 }
 
 pub fn main() !void {
-    const stdout = std.io.getStdOut().writer();
+    var stdout_buffer: [4096]u8 = undefined;
+    var stdout_writer = std.fs.File.stdout().writer(&stdout_buffer);
+    const stdout = &stdout_writer.interface;
 
     try stdout.print("Size of StructOfPointers: {} bytes\n", .{@sizeOf(StructOfPointers)});
     try stdout.print("Size of StructOfIndexes: {} bytes\n", .{@sizeOf(StructOfIndexes)});
@@ -91,6 +93,7 @@ pub fn main() !void {
 
     try stdout.writeAll("\n");
     try bench.run(stdout);
+    try stdout.flush();
 }
 
 fn benchmarkStructOfPointers(_: std.mem.Allocator) void {
