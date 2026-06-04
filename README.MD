@@ -2,12 +2,7 @@
 
 ## Data-Oriented Design (DOD) Examples in Zig
 
-This repository contains performance tests based on examples from the
-talk ["Andrew Kelley - Practical DOD"](https://vimeo.com/649009599). For the Q&A portion of the talk,
-see: ["Practical DOD - Q&A"](https://vimeo.com/649016743).
-
-The examples are hypothetical with dummy logic aiming to demonstrate potential performance
-optimizations using DOD principles in Zig.
+I was learning zig and DOD and after watching video ["Andrew Kelley - Practical DOD"](https://vimeo.com/649009599) I made these performance tests to see how much improvement you can get by applying DOD principles on dummy examples from the slides.
 
 Used zig version: 0.15.2
 
